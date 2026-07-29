@@ -1,0 +1,22 @@
+/vendor/
+/.phpunit.cache/
+/.php-cs-fixer.cache/
+.phpunit.result.cache
+composer.lock
+composer.phar
+*.phar
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

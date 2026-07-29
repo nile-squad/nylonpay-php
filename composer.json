@@ -1,0 +1,72 @@
+{
+  "name": "nile-squad/nylonpay-php",
+  "description": "Nylon Pay SDK for merchant integrations",
+  "type": "library",
+  "license": "MIT",
+  "version": "0.1.0",
+  "keywords": [
+    "nylonpay",
+    "nylon-pay",
+    "payments",
+    "mobile-money",
+    "payouts",
+    "fintech",
+    "sdk",
+    "php"
+  ],
+  "authors": [
+    {
+      "name": "Nile Squad",
+      "email": "contact@nilesquad.com"
+    }
+  ],
+  "homepage": "https://github.com/nile-squad/nylonpay-php#readme",
+  "support": {
+    "issues": "https://github.com/nile-squad/nylonpay-php/issues",
+    "source": "https://github.com/nile-squad/nylonpay-php"
+  },
+  "require": {
+    "php": "^8.1",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.64",
+    "phpstan/phpstan": "^2.0",
+    "phpunit/phpunit": "^10.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "NileSquad\\NylonPay\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NileSquad\\NylonPay\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --testsuite unit,security",
+    "test:unit": "phpunit --testsuite unit",
+    "test:security": "phpunit --testsuite security",
+    "test:integration": "phpunit --testsuite integration",
+    "analyse": "phpstan analyse",
+    "cs-check": "php-cs-fixer fix --dry-run --diff",
+    "cs-fix": "php-cs-fixer fix",
+    "check": [
+      "@cs-check",
+      "@analyse",
+      "@test"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "prefer-stable": true,
+  "minimum-stability": "stable"
+}
