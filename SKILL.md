@@ -1,12 +1,17 @@
 ---
 name: nylonpay-php
-description: Use when integrating Nylon Pay into a server-side PHP app — collecting payments, sending payouts, checking transaction status, verifying phone numbers, creating hosted invoices, or verifying webhook signatures via the nile-squad/nylonpay-php SDK.
+description: Use when integrating Nylon Pay into a server-side PHP app, collecting payments, sending payouts, checking transaction status, verifying phone numbers, creating hosted invoices, or verifying webhook signatures via the nile-squad/nylonpay-php SDK.
 ---
 
 # Nylon Pay PHP SDK
 
 Server-side SDK for Nylon Pay. PHP 8.1+ with `ext-curl`, `ext-json`,
 `ext-openssl`, `ext-mbstring`. Published as `nile-squad/nylonpay-php`.
+
+Same product surface as the [TypeScript](https://docs.nylonpay.nilesquad.com/docs/skills/typescript)
+and [Python](https://docs.nylonpay.nilesquad.com/docs/skills/python) SDKs. Method
+names and array keys match TypeScript camelCase. Hub:
+[nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
 
 ## Setup
 
@@ -20,29 +25,29 @@ composer require nile-squad/nylonpay-php
 require 'vendor/autoload.php';
 
 use function NileSquad\NylonPay\createNylonPay;
+use function NileSquad\NylonPay\parseError;
 
 $nylon = createNylonPay([
-    'apiKey' => getenv('NYLONPAY_API_KEY'),       // must start with "npk_"
+    'apiKey' => getenv('NYLONPAY_API_KEY'), // must start with "npk_"
     'apiSecret' => getenv('NYLONPAY_API_SECRET'), // must start with "nps_"
 ]);
 ```
 
-- This is a **server-side** SDK. Never ship `apiSecret` to a browser or mobile client.
-- Test vs. live mode is decided by the **key**, not a config flag. There is no
+- Server-side only. Never ship `apiSecret` to a browser or mobile client.
+- Test vs live mode comes from the **key**, not a config flag. There is no
   `environment` option.
-- Amounts are integers in the currency's smallest tracked unit (e.g. `10000`).
+- Amounts are integers in the currency's smallest tracked unit (for example `10000`).
 - Supported currencies: `USD`, `EUR`, `GBP`, `KES`, `UGX`, `TZS`, `RWF`.
-- Operations take one associative array. Method names match the cross-language
-  spec (camelCase, same as TypeScript).
+- Operations take one associative array.
 
-## Result type — read before writing any call
+## Result type, read before writing any call
 
 Sync operations return `Result`. **Always branch on `isOk()` before `value()`.**
 
 ```php
-use function NileSquad\NylonPay\parseError;
-
-$result = $nylon->getStatus(['reference' => 'ORDER-2026-001']);
+$result = $nylon->getStatus([
+    'reference' => '550e8400-e29b-41d4-a716-446655440000',
+]);
 
 if (!$result->isOk()) {
     $error = parseError($result->error()); // category, message, retryable
@@ -55,8 +60,8 @@ if (!$result->isOk()) {
 $status = $result->value();
 ```
 
-Misconfiguration / client validation throws `SdkException`. Sync API failures
-return `Result` errors as strings — use `parseError()`.
+Misconfiguration and client validation throw `SdkException`. Sync API failures
+return `Result` errors as strings, use `parseError()`.
 
 ## Choosing an operation
 
@@ -69,10 +74,10 @@ return `Result` errors as strings — use `parseError()`.
 | One-shot status | `getStatus` | `Result` |
 | Full transaction record | `getTransaction` | `Result` |
 | Pre-validate phone / get name | `verifyPhone` | `Result` |
-| Hosted payment link (cards) | `createInvoice` | `Result` with URL |
+| Hosted payment link (cards) | `createInvoice` | `Result` with `paymentLink` |
 | Authenticate webhook | `verifyWebhookSignature` | `bool` |
 
-**Prefer `*AndResolve`** for simple request/response flows.
+Prefer `*AndResolve` for simple request/response flows.
 
 ## Event-driven flow
 
@@ -86,7 +91,8 @@ $payment = $nylon->collectPayment([
     ],
     'description' => 'Order #1234',
     'method' => 'mobileMoney',
-    'reference' => 'ORDER-2026-001', // optional; 13–15 chars if supplied
+    // optional; omit to auto-generate a UUID v4
+    'reference' => '550e8400-e29b-41d4-a716-446655440000',
 ]);
 
 $payment->on('success', function (array $data): void {
@@ -97,7 +103,7 @@ $payment->on('failed', function (array $data): void {
     // $data['error']
 });
 
-$tx = $payment->wait();
+$tx = $payment->wait(); // transaction or null, does not throw on failure
 ```
 
 Events: `processing`, `success`, `failed`, `cancelled`, `error`.
@@ -125,12 +131,24 @@ if (!$valid) {
 }
 ```
 
-Verification never throws — returns `false` on any failure.
+Verification never throws, it returns `false` on any failure.
 
 ## Gotchas
 
 - Use the raw, unparsed body for `verifyWebhookSignature`.
-- Card payments only via hosted `createInvoice`.
-- Stable `reference` for idempotency: **13 to 15 characters** if you supply one.
-- Array keys use camelCase (`phoneNumber`, `apiKey`) — same as TypeScript, not Python snake_case.
+- Card payments only via hosted `createInvoice` (read `paymentLink`).
+- Idempotency: pass a stable UUID `reference` you own, or omit it for an
+  auto-generated UUID v4. Non-UUID values throw a validation error.
+- Array keys use camelCase (`phoneNumber`, `apiKey`, `paymentLink`), same as
+  TypeScript, not Python snake_case.
 - Spec: [Nylon Pay SDK Spec](https://github.com/nile-squad/specs/blob/main/nylonpay-sdk-spec/spec.md).
+
+## Other language SDKs
+
+| Language | Package | Agent skill |
+|---|---|---|
+| TypeScript | [`@nile-squad/nylonpay-ts`](https://github.com/nile-squad/nylonpay-ts) | [docs](https://docs.nylonpay.nilesquad.com/docs/skills/typescript) |
+| Python | [`nylonpay-py`](https://github.com/nile-squad/nylonpay-py) | [docs](https://docs.nylonpay.nilesquad.com/docs/skills/python) |
+
+Public hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
+Example prompts: [docs](https://docs.nylonpay.nilesquad.com/docs/skills/example-prompts).
