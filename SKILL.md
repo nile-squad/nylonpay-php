@@ -8,10 +8,10 @@ description: Use when integrating Nylon Pay into a server-side PHP app, collecti
 Server-side SDK for Nylon Pay. PHP 8.1+ with `ext-curl`, `ext-json`,
 `ext-openssl`, `ext-mbstring`. Published as `nile-squad/nylonpay-php`.
 
-Same product surface as the [TypeScript](https://docs.nylonpay.nilesquad.com/docs/skills/typescript)
-and [Python](https://docs.nylonpay.nilesquad.com/docs/skills/python) SDKs. Method
-names and array keys match TypeScript camelCase. Hub:
-[nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
+Integration flows (language-agnostic):
+[Nylon Pay integration skill](https://docs.nylonpay.nilesquad.com/docs/skills).
+This file covers PHP setup and syntax. Method names and array keys match TypeScript
+camelCase. Hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
 
 ## Setup
 
@@ -145,10 +145,11 @@ Verification never throws, it returns `false` on any failure.
 
 ## Other language SDKs
 
-| Language | Package | Agent skill |
+| Language | Package | SDK skill |
 |---|---|---|
-| TypeScript | [`@nile-squad/nylonpay-ts`](https://github.com/nile-squad/nylonpay-ts) | [docs](https://docs.nylonpay.nilesquad.com/docs/skills/typescript) |
-| Python | [`nylonpay-py`](https://github.com/nile-squad/nylonpay-py) | [docs](https://docs.nylonpay.nilesquad.com/docs/skills/python) |
+| TypeScript | [`@nile-squad/nylonpay-ts`](https://github.com/nile-squad/nylonpay-ts) | [SKILL.md](https://github.com/nile-squad/nylonpay-ts/blob/main/SKILL.md) |
+| Python | [`nylonpay-py`](https://github.com/nile-squad/nylonpay-py) | [SKILL.md](https://github.com/nile-squad/nylonpay-py/blob/main/SKILL.md) |
 
-Public hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
+Integration skill: [docs](https://docs.nylonpay.nilesquad.com/docs/skills).
 Example prompts: [docs](https://docs.nylonpay.nilesquad.com/docs/skills/example-prompts).
+Hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
