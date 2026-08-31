@@ -4,14 +4,13 @@
 
 Upgrading from 0.1.0. **Upgrade if your metadata keys are not plain ASCII.**
 
-### Fixed — critical
+### Fixed, critical
 
 - **Requests with non-Latin metadata keys failed authentication.** The canonical
   payload sorted object keys by UTF-16 **little-endian** bytes, which is not
   UTF-16 code-unit order: little-endian compares the low byte first, so `"Ā"`
   (U+0100) sorted before `"Z"` (U+005A) where the correct order is the reverse.
-  Any sibling key set containing a character whose low byte is below `0x20` —
-  Cyrillic, CJK, Latin Extended, emoji — was canonicalized differently from the
+  Any sibling key set containing a character whose low byte is below `0x20`, Cyrillic, CJK, Latin Extended, emoji, was canonicalized differently from the
   server, so a correctly-formed request was rejected as an authentication
   failure. Sorting is now by UTF-16 **big-endian** bytes, which is equivalent to
   code-unit order.
