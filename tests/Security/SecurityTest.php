@@ -14,9 +14,10 @@ use NileSquad\NylonPay\Tests\Support\MockHttpClient;
 use NileSquad\NylonPay\Transport;
 use NileSquad\NylonPay\VerifyResponse;
 use NileSquad\NylonPay\VerifyWebhook;
-use PHPUnit\Framework\TestCase;
 
 use function NileSquad\NylonPay\verifyWebhookSignature;
+
+use PHPUnit\Framework\TestCase;
 
 final class SecurityTest extends TestCase
 {

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace NileSquad\NylonPay\Tests\Integration;
 
 use NileSquad\NylonPay\CreateNylonPay;
-use NileSquad\NylonPay\SdkException;
-use PHPUnit\Framework\TestCase;
 
 use function NileSquad\NylonPay\parseError;
+
+use NileSquad\NylonPay\SdkException;
+use PHPUnit\Framework\TestCase;
 
 final class IntegrationTest extends TestCase
 {
