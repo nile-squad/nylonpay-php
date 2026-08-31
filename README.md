@@ -151,7 +151,7 @@ composer test:integration  # I1–I19 against sandbox (.env)
 composer check             # cs-check + phpstan + tests
 ```
 
-Integration tests load credentials from `packages/sdks/php/.env`, or fall back to `packages/sdks/typescript/.env`:
+Integration tests load credentials from a `.env` file in the package root:
 
 ```bash
 NYLONPAY_API_KEY=npk_test_...
