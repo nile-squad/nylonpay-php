@@ -1,6 +1,7 @@
 {
   "name": "nile-squad/nylonpay-php",
   "description": "Nylon Pay SDK for merchant integrations",
+  "version": "0.1.1",
   "type": "library",
   "license": "MIT",
   "keywords": [
