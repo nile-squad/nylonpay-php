@@ -28,6 +28,9 @@ final class IntegrationTest extends TestCase
         return self::apiKey() !== '' && self::apiSecret() !== '';
     }
 
+    /**
+     * @return \NileSquad\NylonPay\NylonPay
+     */
     private static function createSdk(bool $force = true): \NileSquad\NylonPay\NylonPay
     {
         $config = [
@@ -80,6 +83,9 @@ final class IntegrationTest extends TestCase
         self::assertContains($payment->status, ['pending', 'processing']);
     }
 
+    /**
+     * @return \NileSquad\NylonPay\Result<array<string, mixed>, string>
+     */
     private static function getTransactionWithRetry(\NileSquad\NylonPay\NylonPay $sdk, string $reference, int $attempts = 5): \NileSquad\NylonPay\Result
     {
         $last = $sdk->getTransaction(['reference' => $reference]);
@@ -349,11 +355,17 @@ final class IntegrationTest extends TestCase
         }
 
         $first = self::createSdk(true);
-        $second = CreateNylonPay::create(array_filter([
+
+        $secondConfig = [
             'apiKey' => self::apiKey(),
             'apiSecret' => self::apiSecret(),
-            'baseUrl' => getenv('NYLONPAY_BASE_URL') ?: null,
-        ], static fn (mixed $value): bool => $value !== null && $value !== ''));
+        ];
+        $baseUrl = getenv('NYLONPAY_BASE_URL');
+        if (is_string($baseUrl) && $baseUrl !== '') {
+            $secondConfig['baseUrl'] = $baseUrl;
+        }
+
+        $second = CreateNylonPay::create($secondConfig);
 
         self::assertSame($first, $second);
     }

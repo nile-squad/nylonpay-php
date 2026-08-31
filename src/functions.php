@@ -7,7 +7,20 @@ namespace NileSquad\NylonPay;
 /**
  * Public entry points for merchants integrating the PHP SDK.
  *
- * @param array<string, mixed> $config
+ * @param array{
+ *   apiKey: string,
+ *   apiSecret: string,
+ *   baseUrl?: string,
+ *   timeoutMs?: int,
+ *   maxRetries?: int,
+ *   maxPollIntervalMs?: int,
+ *   maxPollDurationMs?: int|null,
+ *   maxPollAttempts?: int|null,
+ *   onDelayed?: 'wait'|'return',
+ *   force?: bool,
+ *   httpClient?: HttpClient|null,
+ *   hooks?: array<string, mixed>|null
+ * } $config
  */
 function createNylonPay(array $config): NylonPay
 {

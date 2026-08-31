@@ -6,21 +6,26 @@ namespace NileSquad\NylonPay;
 
 /**
  * Block until a payment reaches a terminal state.
+ *
+ * @phpstan-import-type TransactionFetcher from PaymentInstance
+ *
+ * @phpstan-type PollDeps array{
+ *   reference: string,
+ *   fetchStatus: TransactionFetcher,
+ *   fetchTransaction: TransactionFetcher,
+ *   pollIntervalMs: int,
+ *   maxPollDurationMs?: int|null,
+ *   maxPollAttempts?: int|null,
+ *   onDelayed?: 'wait'|'return'
+ * }
  */
 final class PollUntilTerminal
 {
     private const TIMEOUT_MESSAGE = 'Timed out waiting for the transaction status to update';
 
     /**
-     * @param array{
-     *   reference: string,
-     *   fetchStatus: callable(array): Result,
-     *   fetchTransaction: callable(array): Result,
-     *   pollIntervalMs: int,
-     *   maxPollDurationMs?: int|null,
-     *   maxPollAttempts?: int|null,
-     *   onDelayed?: 'wait'|'return'
-     * } $deps
+     * @param PollDeps $deps
+     *
      * @return Result<array<string, mixed>, string>
      */
     public static function run(array $deps): Result
@@ -45,7 +50,6 @@ final class PollUntilTerminal
             }
 
             $attempts++;
-            /** @var Result $statusResult */
             $statusResult = $fetchStatus(['reference' => $reference]);
 
             if ($statusResult->isErr()) {
@@ -62,15 +66,13 @@ final class PollUntilTerminal
             $status = $statusResult->value();
 
             if (PollInterval::isTerminal((string) ($status['status'] ?? ''))) {
-                /** @var Result $txResult */
-                $txResult = $fetchTransaction(['reference' => $reference]);
+                    $txResult = $fetchTransaction(['reference' => $reference]);
 
                 return $txResult->isOk() ? $txResult : Result::err($txResult->error());
             }
 
             if (($status['delayed'] ?? false) === true && $onDelayed === 'return') {
-                /** @var Result $txResult */
-                $txResult = $fetchTransaction(['reference' => $reference]);
+                    $txResult = $fetchTransaction(['reference' => $reference]);
 
                 return $txResult->isOk() ? $txResult : Result::err($txResult->error());
             }

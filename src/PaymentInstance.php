@@ -6,6 +6,18 @@ namespace NileSquad\NylonPay;
 
 /**
  * Event-driven payment instance returned by async collect/payout operations.
+ *
+ * @phpstan-type TransactionFetcher callable(array<string, mixed>): Result<array<string, mixed>, string>
+ * @phpstan-type InitialResponse array<string, mixed>
+ * @phpstan-type PaymentDeps array{
+ *   fetchStatus: TransactionFetcher,
+ *   fetchTransaction: TransactionFetcher,
+ *   pollIntervalMs?: int,
+ *   maxPollDurationMs?: int|null,
+ *   maxPollAttempts?: int|null,
+ *   onDelayed?: 'wait'|'return',
+ *   initialError?: SdkError|null
+ * }
  */
 final class PaymentInstance
 {
@@ -43,16 +55,8 @@ final class PaymentInstance
     private ?SdkError $pendingError = null;
 
     /**
-     * @param array{reference: string, status: string} $initialResponse
-     * @param array{
-     *   fetchStatus: callable(array): Result,
-     *   fetchTransaction: callable(array): Result,
-     *   pollIntervalMs?: int,
-     *   maxPollDurationMs?: int|null,
-     *   maxPollAttempts?: int|null,
-     *   onDelayed?: 'wait'|'return',
-     *   initialError?: SdkError|null
-     * } $deps
+     * @param InitialResponse $initialResponse
+     * @param PaymentDeps     $deps
      */
     public function __construct(array $initialResponse, private readonly array $deps)
     {

@@ -69,6 +69,7 @@ final class Transport
 
     /**
      * @param array<string, mixed> $signedPayload
+     * @return Result<mixed, string>
      */
     private function attempt(string $bodyString, array $signedPayload, int $currentAttempt): Result
     {
@@ -193,7 +194,10 @@ final class Transport
         ];
     }
 
-    /** @return Result<mixed, string> */
+    /**
+     * @param array<string, string> $headers
+     * @return Result<mixed, string>
+     */
     private function verifySuccessResponse(mixed $data, array $headers): Result
     {
         [$strippedData, $responseSignature] = $this->stripResponseSignature($data);

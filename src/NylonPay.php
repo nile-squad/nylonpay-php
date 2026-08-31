@@ -6,6 +6,10 @@ namespace NileSquad\NylonPay;
 
 /**
  * Merchant-facing SDK facade with all payment operations.
+ *
+ * @phpstan-import-type TransactionFetcher from PaymentInstance
+ * @phpstan-import-type PaymentDeps from PaymentInstance
+ * @phpstan-import-type InitialResponse from PaymentInstance
  */
 final class NylonPay
 {
@@ -309,7 +313,7 @@ final class NylonPay
         return VerifyWebhook::verify($input);
     }
 
-    /** @return array<string, mixed> */
+    /** @return PaymentDeps */
     private function commonDeps(): array
     {
         return [
@@ -322,7 +326,11 @@ final class NylonPay
         ];
     }
 
-    /** @return Result<array<string, mixed>, string> */
+    /**
+     * @param array<string, mixed> $transaction
+     *
+     * @return Result<array<string, mixed>, string>
+     */
     private function continueResolveIfNeeded(array $transaction): Result
     {
         $status = (string) ($transaction['status'] ?? '');
@@ -335,7 +343,19 @@ final class NylonPay
         ]));
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * The polling dependencies minus `reference`, which each caller merges in
+     * for the transaction it is waiting on.
+     *
+     * @return array{
+     *   fetchStatus: TransactionFetcher,
+     *   fetchTransaction: TransactionFetcher,
+     *   pollIntervalMs: int,
+     *   maxPollDurationMs: int|null,
+     *   maxPollAttempts: int|null,
+     *   onDelayed: 'wait'|'return'
+     * }
+     */
     private function pollDeps(): array
     {
         return [
@@ -555,8 +575,9 @@ final class NylonPay
     }
 
     /**
-     * @param array<string, mixed> $wirePayload
-     * @param array<string, mixed> $rawInput
+     * @param Result<array<string, mixed>, string> $result
+     * @param array<string, mixed>                  $wirePayload
+     * @param array<string, mixed>                  $rawInput
      */
     private function runAfterHook(string $hookName, Result $result, array $wirePayload, array $rawInput): void
     {

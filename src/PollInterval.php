@@ -28,7 +28,17 @@ final class PollInterval
         }
 
         $periods = (int) floor(($elapsed - $twoMinutes) / $twoMinutes) + 1;
+        $maxIntervalMs = 15_000;
 
-        return min($baseIntervalMs * (2 ** $periods), 15_000);
+        // Double per elapsed period, stopping at the cap. `2 ** $periods`
+        // overflows int to float once $periods passes 62, which made the
+        // return type float on a long-lived poll; doubling in a loop that
+        // exits at the cap stays integral for any elapsed time.
+        $intervalMs = $baseIntervalMs;
+        for ($period = 0; $period < $periods && $intervalMs < $maxIntervalMs; ++$period) {
+            $intervalMs *= 2;
+        }
+
+        return min($intervalMs, $maxIntervalMs);
     }
 }
