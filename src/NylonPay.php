@@ -414,6 +414,8 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'description is required'));
         }
 
+        $this->validateTestOutcome($input['testOutcome'] ?? null);
+
         $method = $input['method'] ?? 'mobileMoney';
         if ($method === 'bank' && !isset($input['bank'])) {
             throw ParseError::createSdkException(new SdkError('validation', 'bank details are required when method is "bank"'));
@@ -472,6 +474,8 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'description is required'));
         }
 
+        $this->validateTestOutcome($input['testOutcome'] ?? null);
+
         $destination = $input['destination'] ?? null;
         if (!is_array($destination)) {
             throw ParseError::createSdkException(new SdkError('validation', 'destination.accountHolderName is required'));
@@ -493,6 +497,18 @@ final class NylonPay
         $payload['customer'] = array_merge($customer, ['phoneNumber' => $normalizedPhone]);
 
         return $payload;
+    }
+
+    /**
+     * Validate the sandbox-only forced outcome. Runs inside both prepare
+     * methods (which also re-run on `before*` hook output), so a hook can
+     * never smuggle an invalid value past the checks.
+     */
+    private function validateTestOutcome(mixed $testOutcome): void
+    {
+        if ($testOutcome !== null && $testOutcome !== 'success' && $testOutcome !== 'fail') {
+            throw ParseError::createSdkException(new SdkError('validation', 'testOutcome must be "success" or "fail"'));
+        }
     }
 
     private function resolveReference(?string $reference): string
