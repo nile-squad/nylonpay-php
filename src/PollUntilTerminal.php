@@ -66,13 +66,13 @@ final class PollUntilTerminal
             $status = $statusResult->value();
 
             if (PollInterval::isTerminal((string) ($status['status'] ?? ''))) {
-                    $txResult = $fetchTransaction(['reference' => $reference]);
+                $txResult = $fetchTransaction(['reference' => $reference]);
 
                 return $txResult->isOk() ? $txResult : Result::err($txResult->error());
             }
 
             if (($status['delayed'] ?? false) === true && $onDelayed === 'return') {
-                    $txResult = $fetchTransaction(['reference' => $reference]);
+                $txResult = $fetchTransaction(['reference' => $reference]);
 
                 return $txResult->isOk() ? $txResult : Result::err($txResult->error());
             }

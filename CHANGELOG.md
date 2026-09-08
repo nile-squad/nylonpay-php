@@ -31,6 +31,21 @@ Upgrading from 0.1.0. **Upgrade if your metadata keys are not plain ASCII.**
 - The spec's canonical signing conformance vectors V1–V7 now ship as a unit test
   (spec requirement S19), pinning this SDK to the backend rather than only to
   itself. V7 covers the ordering bug above.
+- `testOutcome` on `collectPayment`, `collectPaymentAndResolve`, `makePayout`
+  and `makePayoutAndResolve`. Pass `"success"` or `"fail"` with a sandbox key to
+  force the result instead of letting the sandbox pick one at random. Rejected
+  on live keys.
+
+### Changed
+
+- The server fingerprint no longer includes the PHP version or SAPI. It is a
+  stable identifier for the machine, and a runtime version changed it on every
+  upgrade while being something the other SDKs cannot obtain the same way. OS
+  type, platform, architecture, release and hostname still go into it.
+
+  Nothing to do on upgrade. The server treats the fingerprint as opaque and
+  signs with the value it receives, so a client on the older version keeps
+  working alongside one on this.
 
 ## 0.1.0
 
