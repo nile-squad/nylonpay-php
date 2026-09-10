@@ -18,10 +18,11 @@ final class SdkError
         public readonly string $category,
         public readonly string $message,
         public readonly ?bool $retryable = null,
+        public readonly ?string $code = null,
     ) {
     }
 
-    /** @return array{category: string, message: string, retryable?: bool} */
+    /** @return array{category: string, message: string, retryable?: bool, code?: string} */
     public function toArray(): array
     {
         $result = [
@@ -31,6 +32,10 @@ final class SdkError
 
         if ($this->retryable !== null) {
             $result['retryable'] = $this->retryable;
+        }
+
+        if ($this->code !== null) {
+            $result['code'] = $this->code;
         }
 
         return $result;

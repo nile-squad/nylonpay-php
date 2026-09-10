@@ -258,13 +258,14 @@ final class Transport
 
     private function buildHttpError(string $message, int $statusCode): SdkError
     {
-        if (preg_match('/^(.*?)\s*--\s*error-type:\s*([a-z_]+)\s*$/is', $message, $matches) === 1) {
+        if (preg_match('/^(.*?)\s*--\s*error-type:\s*([a-z_]+)(?:\s*--\s*error-code:\s*([a-z0-9_]+))?\s*$/is', $message, $matches) === 1) {
             $category = $matches[2];
             if (in_array($category, self::KNOWN_CATEGORIES, true)) {
                 return new SdkError(
                     $category,
                     $matches[1],
                     in_array($statusCode, Config::RETRYABLE_STATUS_CODES, true),
+                    $matches[3] ?? null,
                 );
             }
         }

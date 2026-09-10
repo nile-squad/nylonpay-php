@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `on_hold` is a non-terminal / processing event, matching TypeScript and Python. `under_review` normalizes to `on_hold`.
+- `parseError` reads an optional `-- error-code:` suffix onto `SdkError::$code`. `createSdkException` forwards it as `SdkException::$errorCode` (`Exception` already owns integer `$code`).
+- Status and transaction payloads may include `id`, `operatorTid`, `failureReason`, `failureCategory`, `failureCode`, `statusText`, and `delayed`.
+
+### Changed
+
+- Webhook collections send `type: "collection"` plus `legacyType: "charge"` this window.
+
 ## 0.1.1
 
 Upgrading from 0.1.0. **Upgrade if your metadata keys are not plain ASCII.**

@@ -25,6 +25,7 @@ final class PaymentInstance
     private const STATUS_TO_EVENT = [
         'pending' => 'processing',
         'processing' => 'processing',
+        'on_hold' => 'processing',
         'successful' => 'success',
         'failed' => 'failed',
         'cancelled' => 'cancelled',
@@ -282,6 +283,13 @@ final class PaymentInstance
 
     private static function normalizeStatus(string $raw): string
     {
-        return $raw === 'completed' ? 'successful' : $raw;
+        if ($raw === 'completed') {
+            return 'successful';
+        }
+        if ($raw === 'under_review') {
+            return 'on_hold';
+        }
+
+        return $raw;
     }
 }

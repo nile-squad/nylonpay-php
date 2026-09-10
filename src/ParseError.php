@@ -39,17 +39,18 @@ final class ParseError
                 self::normalizeCategory($decoded['category']),
                 $decoded['message'],
                 isset($decoded['retryable']) ? (bool) $decoded['retryable'] : null,
+                isset($decoded['code']) && is_string($decoded['code']) ? $decoded['code'] : null,
             );
         }
 
-        [$category, $message] = self::parseCategoryFromMessage($error);
+        [$category, $message, $code] = self::parseCategoryFromMessage($error);
 
-        return new SdkError($category ?? 'internal', $message);
+        return new SdkError($category ?? 'internal', $message, null, $code);
     }
 
     public static function createSdkException(SdkError $error): SdkException
     {
-        return new SdkException($error->category, $error->message, $error->retryable);
+        return new SdkException($error->category, $error->message, $error->retryable, $error->code);
     }
 
     public static function serialize(SdkError $error): string
@@ -72,16 +73,16 @@ final class ParseError
         return in_array($category, self::KNOWN_CATEGORIES, true) ? $category : 'internal';
     }
 
-    /** @return array{0: SdkErrorCategory|null, 1: string} */
+    /** @return array{0: SdkErrorCategory|null, 1: string, 2: string|null} */
     private static function parseCategoryFromMessage(string $message): array
     {
-        if (preg_match('/^(.*?)\s*--\s*error-type:\s*([a-z_]+)\s*$/is', $message, $matches) === 1) {
+        if (preg_match('/^(.*?)\s*--\s*error-type:\s*([a-z_]+)(?:\s*--\s*error-code:\s*([a-z0-9_]+))?\s*$/is', $message, $matches) === 1) {
             $category = $matches[2];
             if (in_array($category, self::KNOWN_CATEGORIES, true)) {
-                return [$category, $matches[1]];
+                return [$category, $matches[1], $matches[3] ?? null];
             }
         }
 
-        return [null, $message];
+        return [null, $message, null];
     }
 }
