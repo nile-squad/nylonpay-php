@@ -7,6 +7,7 @@
 - `on_hold` is a non-terminal / processing event, matching TypeScript and Python. `under_review` normalizes to `on_hold`.
 - `parseError` reads an optional `-- error-code:` suffix onto `SdkError::$code`. `createSdkException` forwards it as `SdkException::$errorCode` (`Exception` already owns integer `$code`).
 - Status and transaction payloads may include `id`, `operatorTid`, `failureReason`, `failureCategory`, `failureCode`, `statusText`, and `delayed`.
+- Requests now send `x-nylon-features`, declaring what this client can parse. The backend withholds wire additions from clients that do not list them, so older releases keep receiving the message shape they were built against.
 
 ### Changed
 
