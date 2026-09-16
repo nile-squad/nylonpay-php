@@ -254,11 +254,12 @@ final class NylonPay
     public function createInvoice(array $input): Result
     {
         $amount = $input['amount'] ?? null;
+        $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
         if (!is_int($amount) || $amount <= 0) {
             throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
         }
 
-        if ($amount < Config::MIN_COLLECTION_AMOUNT) {
+        if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_COLLECTION_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
                 'validation',
                 'Collection amount must be at least ' . Config::MIN_COLLECTION_AMOUNT . ' UGX',
@@ -376,12 +377,13 @@ final class NylonPay
     {
         $reference = $this->resolveReference($input['reference'] ?? null);
         $amount = $input['amount'] ?? null;
+        $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
 
         if (!is_int($amount) || $amount <= 0) {
             throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
         }
 
-        if ($amount < Config::MIN_COLLECTION_AMOUNT) {
+        if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_COLLECTION_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
                 'validation',
                 'Collection amount must be at least ' . Config::MIN_COLLECTION_AMOUNT . ' UGX',
@@ -404,7 +406,7 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber is required'));
         }
 
-        $normalizedPhone = Phone::normalize($phoneNumber);
+        $normalizedPhone = Phone::normalize($phoneNumber, $currency);
         if (!Phone::isValidFormat($normalizedPhone)) {
             throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber must be a valid phone number'));
         }
@@ -436,12 +438,13 @@ final class NylonPay
     {
         $reference = $this->resolveReference($input['reference'] ?? null);
         $amount = $input['amount'] ?? null;
+        $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
 
         if (!is_int($amount) || $amount <= 0) {
             throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
         }
 
-        if ($amount < Config::MIN_DISBURSEMENT_AMOUNT) {
+        if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_DISBURSEMENT_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
                 'validation',
                 'Payout amount must be at least ' . Config::MIN_DISBURSEMENT_AMOUNT . ' UGX',
@@ -464,7 +467,7 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber is required'));
         }
 
-        $normalizedPhone = Phone::normalize($phoneNumber);
+        $normalizedPhone = Phone::normalize($phoneNumber, $currency);
         if (!Phone::isValidFormat($normalizedPhone)) {
             throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber must be a valid phone number'));
         }

@@ -12,6 +12,7 @@ final class PhoneTest extends TestCase
     public function testNormalizeLocalUgandanNumber(): void
     {
         self::assertSame('256768499027', Phone::normalize('0768499027'));
+        self::assertSame('254710000000', Phone::normalize('0710000000', 'KES'));
     }
 
     public function testValidFormat(): void

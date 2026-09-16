@@ -27,6 +27,14 @@ final class Config
 
     public const MIN_DISBURSEMENT_AMOUNT = 5000;
 
+    /** @var list<string> */
+    public const NO_NYLON_FLOOR_CURRENCIES = ['CDF', 'KES', 'RWF', 'TZS'];
+
+    public static function hasNoNylonFloor(string $currency): bool
+    {
+        return in_array(strtoupper($currency), self::NO_NYLON_FLOOR_CURRENCIES, true);
+    }
+
     /** @var list<int> */
     public const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 
