@@ -43,7 +43,7 @@ $nylon = createNylonPay([
   Any other value throws a `validation` error, and so does using it with a live
   key.
 - Amounts are integers in the currency's smallest tracked unit (for example `10000`).
-- Supported currencies: `USD`, `EUR`, `GBP`, `KES`, `UGX`, `TZS`, `RWF`.
+- Supported currencies: `USD`, `EUR`, `GBP`, `KES`, `UGX`, `TZS`, `RWF`, `CDF`.
 - Operations take one associative array.
 
 ## Result type, read before writing any call
