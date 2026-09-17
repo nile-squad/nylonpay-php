@@ -168,9 +168,15 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
         }
 
+        $rawReference = $input['reference'] ?? null;
+        $reference = $this->resolveReference(is_string($rawReference) ? $rawReference : null);
+
         return $this->transport->send([
             'action' => Config::SDK_ACTIONS['payBill'],
-            'payload' => Wire::toWire(array_merge($input, ['phone' => $normalizedPhone])),
+            'payload' => Wire::toWire(array_merge($input, [
+                'phone' => $normalizedPhone,
+                'reference' => $reference,
+            ])),
         ]);
     }
 
@@ -205,9 +211,15 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
         }
 
+        $rawReference = $input['reference'] ?? null;
+        $reference = $this->resolveReference(is_string($rawReference) ? $rawReference : null);
+
         return $this->transport->send([
             'action' => Config::SDK_ACTIONS['buyAirtime'],
-            'payload' => Wire::toWire(array_merge($input, ['phone' => $normalizedPhone])),
+            'payload' => Wire::toWire(array_merge($input, [
+                'phone' => $normalizedPhone,
+                'reference' => $reference,
+            ])),
         ]);
     }
 
