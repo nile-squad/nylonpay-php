@@ -86,7 +86,7 @@ final class TestOutcomeTest extends TestCase
             'amount' => 5000,
             'currency' => 'UGX',
             'customer' => ['name' => 'Alice', 'phoneNumber' => '+256700000000'],
-            'destination' => ['accountHolderName' => 'Alice', 'accountNumber' => '123456'],
+            'destination' => ['accountHolderName' => 'Alice', 'accountNumber' => '123456', 'phone' => '+256700000000'],
             'description' => 'Payout #1',
         ];
     }

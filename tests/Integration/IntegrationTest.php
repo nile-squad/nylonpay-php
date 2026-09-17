@@ -133,6 +133,7 @@ final class IntegrationTest extends TestCase
             'destination' => [
                 'accountHolderName' => 'Test Customer',
                 'accountNumber' => '123456',
+                'phone' => self::testPhone(),
             ],
             'description' => 'I4 test payout',
             'reference' => self::uniqueReference(),
@@ -157,6 +158,7 @@ final class IntegrationTest extends TestCase
             'destination' => [
                 'accountHolderName' => 'Test Customer',
                 'accountNumber' => '123456',
+                'phone' => self::testPhone(),
             ],
             'description' => 'I5 test payout',
             'reference' => $ref,
@@ -182,6 +184,7 @@ final class IntegrationTest extends TestCase
             'destination' => [
                 'accountHolderName' => 'Test Customer',
                 'accountNumber' => '123456',
+                'phone' => self::testPhone(),
             ],
             'description' => 'I6 idempotency test',
             'reference' => $ref,
@@ -250,6 +253,7 @@ final class IntegrationTest extends TestCase
                 'destination' => [
                     'accountHolderName' => 'Test',
                     'accountNumber' => '123456',
+                'phone' => self::testPhone(),
                 ],
                 'description' => 'I14b sub-min test',
                 'reference' => self::uniqueReference(),

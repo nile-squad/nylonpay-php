@@ -148,6 +148,73 @@ final class NylonPay
      * @param array<string, mixed> $input
      * @return Result<array<string, mixed>, string>
      */
+    public function payBill(array $input): Result
+    {
+        $phone = $input['phone'] ?? null;
+        if (!is_string($phone) || trim($phone) === '') {
+            throw ParseError::createSdkException(new SdkError('validation', 'phone is required'));
+        }
+        $meterNumber = $input['meterNumber'] ?? null;
+        if (!is_string($meterNumber) || trim($meterNumber) === '') {
+            throw ParseError::createSdkException(new SdkError('validation', 'meterNumber is required'));
+        }
+        $amount = $input['amount'] ?? null;
+        if (!is_int($amount) || $amount <= 0) {
+            throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+        }
+
+        $normalizedPhone = Phone::normalize($phone, 'UGX');
+        if (!Phone::isValidFormat($normalizedPhone)) {
+            throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
+        }
+
+        return $this->transport->send([
+            'action' => Config::SDK_ACTIONS['payBill'],
+            'payload' => Wire::toWire(array_merge($input, ['phone' => $normalizedPhone])),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     * @return Result<array<string, mixed>, string>
+     */
+    public function buyAirtime(array $input): Result
+    {
+        $phone = $input['phone'] ?? null;
+        if (!is_string($phone) || trim($phone) === '') {
+            throw ParseError::createSdkException(new SdkError('validation', 'phone is required'));
+        }
+        $purchaseType = $input['purchaseType'] ?? null;
+        if ($purchaseType !== 'airtime' && $purchaseType !== 'bundle') {
+            throw ParseError::createSdkException(new SdkError('validation', 'purchaseType must be airtime or bundle'));
+        }
+        if ($purchaseType === 'airtime') {
+            $amount = $input['amount'] ?? null;
+            if (!is_int($amount) || $amount <= 0) {
+                throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+            }
+        } else {
+            $bundleId = $input['bundleId'] ?? null;
+            if (!is_string($bundleId) || trim($bundleId) === '') {
+                throw ParseError::createSdkException(new SdkError('validation', 'bundleId is required'));
+            }
+        }
+
+        $normalizedPhone = Phone::normalize($phone, 'UGX');
+        if (!Phone::isValidFormat($normalizedPhone)) {
+            throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
+        }
+
+        return $this->transport->send([
+            'action' => Config::SDK_ACTIONS['buyAirtime'],
+            'payload' => Wire::toWire(array_merge($input, ['phone' => $normalizedPhone])),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $input
+     * @return Result<array<string, mixed>, string>
+     */
     public function getStatus(array $input): Result
     {
         $reference = $input['reference'] ?? null;
@@ -495,9 +562,19 @@ final class NylonPay
             throw ParseError::createSdkException(new SdkError('validation', 'destination.accountNumber is required'));
         }
 
+        $destinationPhone = $destination['phone'] ?? null;
+        if (!is_string($destinationPhone) || trim($destinationPhone) === '') {
+            throw ParseError::createSdkException(new SdkError('validation', 'destination.phone is required'));
+        }
+        $normalizedDestinationPhone = Phone::normalize($destinationPhone, is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX');
+        if (!Phone::isValidFormat($normalizedDestinationPhone)) {
+            throw ParseError::createSdkException(new SdkError('validation', 'destination.phone must be a valid phone number'));
+        }
+
         $payload = $input;
         $payload['reference'] = $reference;
-        $payload['customer'] = array_merge($customer, ['phoneNumber' => $normalizedPhone]);
+        $payload['customer'] = array_merge($customer, ['phoneNumber' => $normalizedDestinationPhone]);
+        $payload['destination'] = array_merge($destination, ['phone' => $normalizedDestinationPhone]);
 
         return $payload;
     }
