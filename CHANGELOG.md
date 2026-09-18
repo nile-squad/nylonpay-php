@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.2.0
+
+Upgrading from 0.1.1.
 
 ### Added
 
@@ -8,10 +10,15 @@
 - `parseError` reads an optional `-- error-code:` suffix onto `SdkError::$code`. `createSdkException` forwards it as `SdkException::$errorCode` (`Exception` already owns integer `$code`).
 - Status and transaction payloads may include `id`, `operatorTid`, `failureReason`, `failureCategory`, `failureCode`, `statusText`, and `delayed`.
 - Requests now send `x-nylon-features`, declaring what this client can parse. The backend withholds wire additions from clients that do not list them, so older releases keep receiving the message shape they were built against.
+- `testOutcome` accepts Nylon failure-code literals, matching TypeScript and Python.
 
 ### Changed
 
 - Webhook collections send `type: "collection"` plus `legacyType: "charge"` this window.
+
+### Fixed
+
+- Client-side `testOutcome` validation now accepts the same Nylon failure codes the backend does. It previously rejected anything except `"success"` and `"fail"`.
 
 ## 0.1.1
 

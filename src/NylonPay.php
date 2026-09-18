@@ -598,8 +598,11 @@ final class NylonPay
      */
     private function validateTestOutcome(mixed $testOutcome): void
     {
-        if ($testOutcome !== null && $testOutcome !== 'success' && $testOutcome !== 'fail') {
-            throw ParseError::createSdkException(new SdkError('validation', 'testOutcome must be "success" or "fail"'));
+        if ($testOutcome !== null && !in_array($testOutcome, Config::SANDBOX_TEST_OUTCOMES, true)) {
+            throw ParseError::createSdkException(new SdkError(
+                'validation',
+                'testOutcome must be "success", "fail", or a Nylon failure code',
+            ));
         }
     }
 

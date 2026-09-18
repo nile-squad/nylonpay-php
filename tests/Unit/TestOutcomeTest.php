@@ -115,6 +115,14 @@ final class TestOutcomeTest extends TestCase
         self::assertArrayNotHasKey('testOutcome', $this->lastWirePayload());
     }
 
+    public function testCollectPaymentForwardsFailureCodeTestOutcome(): void
+    {
+        $sdk = $this->sdkWithCapture();
+        $sdk->collectPayment([...$this->collectBase(), 'testOutcome' => 'insufficient_balance']);
+
+        self::assertSame('insufficient_balance', $this->lastWirePayload()['testOutcome'] ?? null);
+    }
+
     public function testInvalidTestOutcomeThrowsBeforeNetwork(): void
     {
         $sdk = $this->sdkWithCapture();
@@ -124,7 +132,10 @@ final class TestOutcomeTest extends TestCase
             self::fail('Expected SdkException for invalid testOutcome');
         } catch (SdkException $e) {
             self::assertSame('validation', $e->category);
-            self::assertStringContainsString('testOutcome must be "success" or "fail"', $e->getMessage());
+            self::assertStringContainsString(
+                'testOutcome must be "success", "fail", or a Nylon failure code',
+                $e->getMessage()
+            );
         }
 
         try {

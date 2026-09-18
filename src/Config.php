@@ -28,6 +28,19 @@ final class Config
     public const MIN_DISBURSEMENT_AMOUNT = 5000;
 
     /** @var list<string> */
+    public const SANDBOX_TEST_OUTCOMES = [
+        'success',
+        'fail',
+        'provider_rejection',
+        'customer_timeout',
+        'insufficient_balance',
+        'invalid_number',
+        'internal_error',
+        'limit_exceeded',
+        'cancelled',
+    ];
+
+    /** @var list<string> */
     public const NO_NYLON_FLOOR_CURRENCIES = ['CDF', 'KES', 'RWF', 'TZS'];
 
     public static function hasNoNylonFloor(string $currency): bool
