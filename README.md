@@ -78,7 +78,8 @@ All operations take a single associative array. Method names match the cross-lan
 - `getTransaction` — full transaction lookup
 - `listTransactions` — paginated list with optional filters
 - `getTransactionsByTag` — shorthand tag filter
-- `verifyPhone` — pre-validate a phone number
+- `verifyPhone` — pre-validate a phone number. International numbers keep their
+  calling code (`+254…` stays Kenya). A local `0…` number is treated as Uganda.
 - `createInvoice` — hosted invoice link
 - `verifyWebhookSignature` — HMAC verification utility
 

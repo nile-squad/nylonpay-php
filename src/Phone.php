@@ -9,19 +9,24 @@ namespace NileSquad\NylonPay;
  */
 final class Phone
 {
+    /** @var array<string, string> */
+    private const DIAL_BY_CURRENCY = [
+        'CDF' => '243',
+        'KES' => '254',
+        'RWF' => '250',
+        'TZS' => '255',
+        'UGX' => '256',
+        'XAF' => '237',
+        'ZMW' => '260',
+    ];
+
     public static function normalize(string $phone, string $currency = 'UGX'): string
     {
         $normalized = preg_replace('/\s+/', '', $phone) ?? $phone;
         $normalized = preg_replace('/^\+/', '', $normalized) ?? $normalized;
 
         if (str_starts_with($normalized, '0') && strlen($normalized) === 10) {
-            $dial = match (strtoupper($currency)) {
-                'KES' => '254',
-                'TZS' => '255',
-                'RWF' => '250',
-                'CDF' => '243',
-                default => '256',
-            };
+            $dial = self::DIAL_BY_CURRENCY[strtoupper($currency)] ?? '256';
             $normalized = $dial . substr($normalized, 1);
         }
 
