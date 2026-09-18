@@ -25,7 +25,8 @@ final class CreateNylonPay
      *   onDelayed?: 'wait'|'return',
      *   force?: bool,
      *   httpClient?: HttpClient|null,
-     *   hooks?: array<string, mixed>|null
+     *   hooks?: array<string, mixed>|null,
+     *   onError?: callable(SdkError): void|null
      * } $config
      */
     public static function create(array $config): NylonPay
@@ -69,6 +70,7 @@ final class CreateNylonPay
             'onDelayed' => $config['onDelayed'] ?? 'wait',
             'httpClient' => $config['httpClient'] ?? null,
             'hooks' => $config['hooks'] ?? null,
+            'onError' => $config['onError'] ?? null,
         ];
 
         $instance = new NylonPay($resolved);

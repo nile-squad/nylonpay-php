@@ -26,10 +26,16 @@ require 'vendor/autoload.php';
 
 use function NileSquad\NylonPay\createNylonPay;
 use function NileSquad\NylonPay\parseError;
+use NileSquad\NylonPay\SdkError;
 
 $nylon = createNylonPay([
     'apiKey' => getenv('NYLONPAY_API_KEY'), // must start with "npk_"
     'apiSecret' => getenv('NYLONPAY_API_SECRET'), // must start with "nps_"
+    'onError' => function (SdkError $error): void {
+        if ($error->code === 'unreachable') {
+            pausePaymentAttempts($error->message);
+        }
+    },
 ]);
 ```
 
@@ -114,6 +120,9 @@ $tx = $payment->wait(); // transaction or null, does not throw on failure
 
 Events: `processing`, `success`, `failed`, `cancelled`, `error`.
 Also: `once`, `off`, `wait`.
+
+Use `onError` in `createNylonPay` for one handler across all operations. An
+unreachable error has `category === "network"` and `code === "unreachable"`.
 
 ## Webhooks
 

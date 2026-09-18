@@ -19,7 +19,8 @@ namespace NileSquad\NylonPay;
  *   onDelayed?: 'wait'|'return',
  *   force?: bool,
  *   httpClient?: HttpClient|null,
- *   hooks?: array<string, mixed>|null
+ *   hooks?: array<string, mixed>|null,
+ *   onError?: callable(SdkError): void|null
  * } $config
  */
 function createNylonPay(array $config): NylonPay

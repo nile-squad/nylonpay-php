@@ -92,11 +92,7 @@ final class ReachabilityTest extends TestCase
     public function testTrackerSkipsWhileDown(): void
     {
         $now = 1000;
-        $emitted = [];
         $tracker = new Reachability(
-            static function (array $data) use (&$emitted): void {
-                $emitted[] = $data['reason'];
-            },
             static function () use (&$now): int {
                 return $now;
             },
@@ -107,7 +103,6 @@ final class ReachabilityTest extends TestCase
 
         self::assertNull($tracker->beforeSend());
         $tracker->noteDown(Reachability::HOST_OFFLINE);
-        self::assertSame([Reachability::HOST_OFFLINE], $emitted);
 
         $blocked = $tracker->beforeSend();
         self::assertNotNull($blocked);
@@ -116,7 +111,6 @@ final class ReachabilityTest extends TestCase
         self::assertSame('network', $parsed->category);
         self::assertSame(Reachability::CODE, $parsed->code);
         self::assertSame(Reachability::HOST_OFFLINE, $parsed->message);
-        self::assertCount(1, $emitted);
 
         $now = 1000 + 15_001;
         self::assertNull($tracker->beforeSend());
@@ -175,7 +169,7 @@ final class ReachabilityTest extends TestCase
     public function testTransportSkipsSecondCallAfterConnectError(): void
     {
         $calls = 0;
-        $emitted = [];
+        $reported = [];
         $client = new MockHttpClient();
         $client->setHandler(static function () use (&$calls): array {
             $calls++;
@@ -189,8 +183,8 @@ final class ReachabilityTest extends TestCase
             'maxRetries' => 0,
             'timeoutMs' => 1000,
             'httpClient' => $client,
-            'onUnreachable' => static function (array $data) use (&$emitted): void {
-                $emitted[] = $data;
+            'onError' => static function (object $error) use (&$reported): void {
+                $reported[] = $error;
             },
         ]);
 
@@ -199,11 +193,12 @@ final class ReachabilityTest extends TestCase
         $parsed = ParseError::parse($first->error());
         self::assertSame(Reachability::NYLON_DOWN, $parsed->message);
         self::assertSame(Reachability::CODE, $parsed->code);
-        self::assertCount(1, $emitted);
+        self::assertCount(1, $reported);
+        self::assertSame(Reachability::NYLON_DOWN, $reported[0]->message);
 
         $second = $transport->send(['action' => 'sdk-get-status', 'payload' => []]);
         self::assertTrue($second->isErr());
         self::assertSame(1, $calls);
-        self::assertCount(1, $emitted);
+        self::assertCount(2, $reported);
     }
 }

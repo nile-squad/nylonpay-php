@@ -99,7 +99,7 @@ final class PaymentInstance
         if ($this->pendingError !== null) {
             $error = $this->pendingError;
             $this->pendingError = null;
-            $this->emitEvent('error', $error->message, $error->category, $error->retryable);
+            $this->emitEvent('error', $error->message, $error->category, $error->retryable, $error->code);
 
             return null;
         }
@@ -184,7 +184,7 @@ final class PaymentInstance
             return;
         }
 
-        $this->emitEvent('error', $parsed->message, $parsed->category, $parsed->retryable);
+        $this->emitEvent('error', $parsed->message, $parsed->category, $parsed->retryable, $parsed->code);
         $this->resolved = true;
     }
 
@@ -258,7 +258,14 @@ final class PaymentInstance
                 $this->emitEvent($event, $errorMsg);
             }
         } else {
-            $this->emitEvent('error', 'Could not retrieve the transaction details');
+            $parsed = ParseError::parse($txResult->error());
+            $this->emitEvent(
+                'error',
+                $parsed->message,
+                $parsed->category,
+                $parsed->retryable,
+                $parsed->code,
+            );
         }
 
         $this->resolved = true;
@@ -269,6 +276,7 @@ final class PaymentInstance
         ?string $error = null,
         ?string $category = null,
         ?bool $retryable = null,
+        ?string $code = null,
     ): void {
         $this->emitter->emit($event, [
             'event' => $event,
@@ -277,6 +285,7 @@ final class PaymentInstance
             'transaction' => $this->transaction,
             'error' => $error,
             'category' => $category,
+            'code' => $code,
             'retryable' => $retryable,
         ]);
     }

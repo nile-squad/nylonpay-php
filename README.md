@@ -19,11 +19,17 @@ Requires PHP 8.1+ with `ext-curl`, `ext-json`, `ext-openssl`, and `ext-mbstring`
 
 require 'vendor/autoload.php';
 
+use NileSquad\NylonPay\SdkError;
 use function NileSquad\NylonPay\createNylonPay;
 
 $nylon = createNylonPay([
     'apiKey' => 'npk_test_...',
     'apiSecret' => 'nps_test_...',
+    'onError' => function (SdkError $error): void {
+        if ($error->code === 'unreachable') {
+            error_log('Pause payment attempts: ' . $error->message);
+        }
+    },
 ]);
 
 $payment = $nylon->collectPayment([
@@ -63,6 +69,7 @@ $tx = $payment->wait();
 | `force` | No | `false` | Bypass instance cache |
 | `hooks` | No | `null` | Lifecycle hooks |
 | `httpClient` | No | `null` | Injectable HTTP client for tests |
+| `onError` | No | `null` | Global handler for structured operation errors on this SDK instance |
 
 The factory caches instances by `apiKey + baseUrl + sha256(apiSecret)`. Rotating the secret yields a fresh instance.
 
@@ -94,7 +101,7 @@ if ($result->isOk()) {
     $status = $result->value();
 } else {
     $error = parseError($result->error());
-    // $error->category, $error->message, $error->retryable
+    // $error->category, $error->code, $error->message, $error->retryable
 }
 ```
 

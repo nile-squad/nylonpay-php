@@ -57,13 +57,14 @@ final class Transport
      *   timeoutMs?: int,
      *   maxRetries?: int,
      *   httpClient?: HttpClient|null,
-     *   onUnreachable?: callable|null
+     *   onError?: callable|null
      * } $config
+     *
+     * The optional onError callback receives each final structured operation error.
      */
     public function __construct(private readonly array $config)
     {
         self::$cachedFingerprint ??= Fingerprint::generate();
-        $onUnreachable = $config['onUnreachable'] ?? null;
         $baseUrl = $config['baseUrl'] ?? Config::DEFAULT_BASE_URL;
         $httpClient = $config['httpClient'] ?? null;
         $probe = static function () use ($baseUrl, $httpClient): ?string {
@@ -82,7 +83,6 @@ final class Transport
             }
         };
         $this->reachability = new Reachability(
-            is_callable($onUnreachable) ? $onUnreachable : null,
             null,
             $probe,
         );
@@ -96,6 +96,7 @@ final class Transport
     {
         $blocked = $this->reachability->beforeSend();
         if ($blocked !== null) {
+            $this->reportError(ParseError::parse($blocked->error()));
             return $blocked;
         }
 
@@ -110,6 +111,23 @@ final class Transport
             signedPayload: $signedPayload,
             currentAttempt: 0,
         );
+    }
+
+    private function reportError(SdkError $error): void
+    {
+        $handler = $this->config['onError'] ?? null;
+        if (!is_callable($handler)) {
+            return;
+        }
+
+        Result::try(static fn () => $handler($error));
+    }
+
+    private function errorResult(SdkError $error): Result
+    {
+        $this->reportError($error);
+
+        return Result::err(ParseError::serialize($error));
     }
 
     /**
@@ -129,19 +147,19 @@ final class Transport
 
             $declaredLength = $response['headers']['content-length'] ?? null;
             if ($declaredLength !== null && (int) $declaredLength > Config::MAX_RESPONSE_BYTES) {
-                return Result::err(ParseError::serialize(new SdkError(
+                return $this->errorResult(new SdkError(
                     'internal',
                     'Received an invalid response from the server',
                     false,
-                )));
+                ));
             }
 
             if (($response['headers']['x-nylon-oversized'] ?? null) === '1') {
-                return Result::err(ParseError::serialize(new SdkError(
+                return $this->errorResult(new SdkError(
                     'internal',
                     'Received an invalid response from the server',
                     false,
-                )));
+                ));
             }
 
             $statusCode = $response['statusCode'];
@@ -170,18 +188,19 @@ final class Transport
                 $gatewayReason = Reachability::classifyHttpStatus($statusCode);
                 if ($gatewayReason !== null) {
                     $this->reachability->noteDown($gatewayReason);
+                    return $this->errorResult(Reachability::sdkError($gatewayReason));
                 }
 
-                return Result::err(ParseError::serialize($this->buildHttpError($errorMessage, $statusCode)));
+                return $this->errorResult($this->buildHttpError($errorMessage, $statusCode));
             }
 
             $responseBody = json_decode($rawBody, true);
             if (!is_array($responseBody) || !array_key_exists('status', $responseBody)) {
-                return Result::err(ParseError::serialize(new SdkError(
+                return $this->errorResult(new SdkError(
                     'internal',
                     'Received an invalid response from the server',
                     false,
-                )));
+                ));
             }
 
             $status = $responseBody['status'];
@@ -192,7 +211,7 @@ final class Transport
                 return $this->verifySuccessResponse($data, $headers);
             }
 
-            return Result::err(ParseError::serialize(ParseError::parse($message)));
+            return $this->errorResult(ParseError::parse($message));
         } catch (\Throwable $error) {
             if ($currentAttempt < $maxRetries) {
                 usleep((int) ($this->calculateBackoff($currentAttempt) * 1_000_000));
@@ -203,12 +222,12 @@ final class Transport
             $reason = Reachability::classifyError($error->getMessage(), (int) $error->getCode());
             $this->reachability->noteDown($reason);
 
-            return Result::err(ParseError::serialize(new SdkError(
+            return $this->errorResult(new SdkError(
                 'network',
                 $reason,
                 true,
                 Reachability::CODE,
-            )));
+            ));
         }
     }
 
@@ -266,28 +285,28 @@ final class Transport
         [$strippedData, $responseSignature] = $this->stripResponseSignature($data);
 
         if ($responseSignature === null) {
-            return Result::err(ParseError::serialize(new SdkError(
+            return $this->errorResult(new SdkError(
                 'internal',
                 'Could not verify the server response',
                 false,
-            )));
+            ));
         }
 
         if (!VerifyResponse::verify($strippedData, $responseSignature, $this->config['apiSecret'])) {
-            return Result::err(ParseError::serialize(new SdkError(
+            return $this->errorResult(new SdkError(
                 'internal',
                 'Could not verify the server response',
                 false,
-            )));
+            ));
         }
 
         [$unboundData, $echoedNonce] = $this->stripRequestNonce($strippedData);
         if ($echoedNonce !== ($headers['x-nylon-nonce'] ?? null)) {
-            return Result::err(ParseError::serialize(new SdkError(
+            return $this->errorResult(new SdkError(
                 'internal',
                 'Could not verify the server response',
                 false,
-            )));
+            ));
         }
 
         return Result::ok($unboundData);

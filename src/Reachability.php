@@ -24,9 +24,6 @@ final class Reachability
     /** curl: could not resolve host / proxy */
     private const CURL_HOST_OFFLINE = [5, 6];
 
-    /** @var callable|null */
-    private $onUnreachable;
-
     /** @var callable(): int */
     private $now;
 
@@ -46,13 +43,11 @@ final class Reachability
     private ?int $lastCheckAt = null;
 
     public function __construct(
-        ?callable $onUnreachable = null,
         ?callable $now = null,
         ?callable $probe = null,
         int $successFreshMs = Config::REACHABILITY_SUCCESS_FRESH_MS,
         int $downRecheckMs = Config::REACHABILITY_DOWN_RECHECK_MS,
     ) {
-        $this->onUnreachable = $onUnreachable;
         $this->now = $now ?? static fn (): int => (int) round(microtime(true) * 1000);
         $this->probe = $probe;
         $this->successFreshMs = $successFreshMs;
@@ -138,7 +133,6 @@ final class Reachability
         $this->lastFailed = true;
         $this->lastReason = $reason;
         $this->lastCheckAt = ($this->now)();
-        $this->emit($reason);
     }
 
     public function noteUp(): void
@@ -174,22 +168,7 @@ final class Reachability
 
         $this->lastFailed = true;
         $this->lastReason = $reason;
-        $this->emit($reason);
 
         return Result::err(ParseError::serialize(self::sdkError($reason)));
-    }
-
-    private function emit(string $reason): void
-    {
-        if ($this->onUnreachable === null) {
-            return;
-        }
-
-        $timestamp = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d\TH:i:s.v\Z');
-        ($this->onUnreachable)([
-            'event' => 'unreachable',
-            'reason' => $reason,
-            'timestamp' => $timestamp,
-        ]);
     }
 }
