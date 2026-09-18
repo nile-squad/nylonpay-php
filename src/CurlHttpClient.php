@@ -78,6 +78,7 @@ final class CurlHttpClient implements HttpClient
         if ($executed === false || $errno !== 0) {
             throw new \RuntimeException(
                 $error !== '' ? $error : 'Could not reach the server',
+                $errno,
             );
         }
 

@@ -19,6 +19,18 @@ final class Config
 
     public const POLL_JITTER_MS = 250;
 
+    public const UNREACHABLE_CODE = 'unreachable';
+
+    public const UNREACHABLE_HOST_OFFLINE = 'host has no internet connection';
+
+    public const UNREACHABLE_NYLON_DOWN = 'Nylon Pay services seem to be down';
+
+    public const REACHABILITY_SUCCESS_FRESH_MS = 5 * 60 * 1000;
+
+    public const REACHABILITY_DOWN_RECHECK_MS = 15_000;
+
+    public const REACHABILITY_PROBE_TIMEOUT_MS = 3_000;
+
     public const SDK_SERVICE = 'sdk';
 
     public const MAX_RESPONSE_BYTES = 10 * 1024 * 1024;

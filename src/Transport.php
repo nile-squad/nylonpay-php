@@ -11,6 +11,8 @@ final class Transport
 {
     private static string $cachedFingerprint;
 
+    private readonly Reachability $reachability;
+
     /**
      * Wire features this SDK understands, sent on every request.
      *
@@ -54,12 +56,36 @@ final class Transport
      *   baseUrl?: string,
      *   timeoutMs?: int,
      *   maxRetries?: int,
-     *   httpClient?: HttpClient|null
+     *   httpClient?: HttpClient|null,
+     *   onUnreachable?: callable|null
      * } $config
      */
     public function __construct(private readonly array $config)
     {
         self::$cachedFingerprint ??= Fingerprint::generate();
+        $onUnreachable = $config['onUnreachable'] ?? null;
+        $baseUrl = $config['baseUrl'] ?? Config::DEFAULT_BASE_URL;
+        $httpClient = $config['httpClient'] ?? null;
+        $probe = static function () use ($baseUrl, $httpClient): ?string {
+            $client = $httpClient ?? new CurlHttpClient();
+            try {
+                $response = $client->post(
+                    $baseUrl,
+                    '{}',
+                    ['content-type' => 'application/json'],
+                    Config::REACHABILITY_PROBE_TIMEOUT_MS,
+                );
+
+                return Reachability::classifyHttpStatus($response['statusCode']);
+            } catch (\Throwable $error) {
+                return Reachability::classifyError($error->getMessage(), (int) $error->getCode());
+            }
+        };
+        $this->reachability = new Reachability(
+            is_callable($onUnreachable) ? $onUnreachable : null,
+            null,
+            $probe,
+        );
     }
 
     /**
@@ -68,6 +94,11 @@ final class Transport
      */
     public function send(array $request): Result
     {
+        $blocked = $this->reachability->beforeSend();
+        if ($blocked !== null) {
+            return $blocked;
+        }
+
         $action = $request['action'];
         $payload = $request['payload'] ?? [];
         $envelope = $this->buildEnvelope($action, $payload);
@@ -114,6 +145,9 @@ final class Transport
             }
 
             $statusCode = $response['statusCode'];
+            if (!in_array($statusCode, Reachability::GATEWAY_DOWN_STATUSES, true)) {
+                $this->reachability->noteUp();
+            }
             $rawBody = $response['body'];
 
             if ($statusCode < 200 || $statusCode > 299) {
@@ -131,6 +165,11 @@ final class Transport
                     usleep((int) ($this->calculateBackoff($currentAttempt) * 1_000_000));
 
                     return $this->attempt($bodyString, $signedPayload, $currentAttempt + 1);
+                }
+
+                $gatewayReason = Reachability::classifyHttpStatus($statusCode);
+                if ($gatewayReason !== null) {
+                    $this->reachability->noteDown($gatewayReason);
                 }
 
                 return Result::err(ParseError::serialize($this->buildHttpError($errorMessage, $statusCode)));
@@ -154,17 +193,21 @@ final class Transport
             }
 
             return Result::err(ParseError::serialize(ParseError::parse($message)));
-        } catch (\Throwable) {
+        } catch (\Throwable $error) {
             if ($currentAttempt < $maxRetries) {
                 usleep((int) ($this->calculateBackoff($currentAttempt) * 1_000_000));
 
                 return $this->attempt($bodyString, $signedPayload, $currentAttempt + 1);
             }
 
+            $reason = Reachability::classifyError($error->getMessage(), (int) $error->getCode());
+            $this->reachability->noteDown($reason);
+
             return Result::err(ParseError::serialize(new SdkError(
                 'network',
-                'Could not reach the server, check your network connection and try again',
+                $reason,
                 true,
+                Reachability::CODE,
             )));
         }
     }

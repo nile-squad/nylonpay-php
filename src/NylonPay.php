@@ -17,6 +17,8 @@ final class NylonPay
 
     private readonly Transport $transport;
 
+    private readonly PubSub $events;
+
     /** @var array<string, mixed> */
     private readonly array $config;
 
@@ -26,6 +28,7 @@ final class NylonPay
     public function __construct(array $config)
     {
         $this->config = $config;
+        $this->events = new PubSub();
         $this->transport = new Transport([
             'apiKey' => $config['apiKey'],
             'apiSecret' => $config['apiSecret'],
@@ -33,7 +36,46 @@ final class NylonPay
             'timeoutMs' => $config['timeoutMs'] ?? Config::DEFAULT_TIMEOUT_MS,
             'maxRetries' => $config['maxRetries'] ?? Config::DEFAULT_MAX_RETRIES,
             'httpClient' => $config['httpClient'] ?? null,
+            'onUnreachable' => function (array $data): void {
+                $this->events->emit('unreachable', $data);
+            },
         ]);
+    }
+
+    /**
+     * Listen for the host going offline or Nylon Pay becoming unreachable.
+     *
+     * @param callable(array{event: 'unreachable', reason: string, timestamp: string}): void $handler
+     */
+    public function on(string $event, callable $handler): self
+    {
+        $this->events->on($event, $handler);
+
+        return $this;
+    }
+
+    /**
+     * Same as {@see on()} but the handler runs once, then unsubscribes.
+     *
+     * @param callable(array{event: 'unreachable', reason: string, timestamp: string}): void $handler
+     */
+    public function once(string $event, callable $handler): self
+    {
+        $this->events->once($event, $handler);
+
+        return $this;
+    }
+
+    /**
+     * Remove a previously registered unreachable handler.
+     *
+     * @param callable(array{event: 'unreachable', reason: string, timestamp: string}): void $handler
+     */
+    public function off(string $event, callable $handler): self
+    {
+        $this->events->off($event, $handler);
+
+        return $this;
     }
 
     /**

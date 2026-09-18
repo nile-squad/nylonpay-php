@@ -6,6 +6,7 @@ Upgrading from 0.1.1.
 
 ### Added
 
+- `$nylon->on('unreachable', function ($data) { ... })` fires when the host is offline or Nylon Pay looks down. A successful call skips further down-checks for about 5 minutes. If the last check is older than that, it checks again rather than treating Nylon as still down. After a failure, the next operation is checked before it is attempted. Handle this event and pause your own retries until it recovers.
 - `on_hold` is a non-terminal / processing event, matching TypeScript and Python. `under_review` normalizes to `on_hold`.
 - `parseError` reads an optional `-- error-code:` suffix onto `SdkError::$code`. `createSdkException` forwards it as `SdkException::$errorCode` (`Exception` already owns integer `$code`).
 - Status and transaction payloads may include `id`, `operatorTid`, `failureReason`, `failureCategory`, `failureCode`, `statusText`, and `delayed`.
