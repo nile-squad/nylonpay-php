@@ -43,10 +43,10 @@ final class Transport
     ];
 
     /** @var array<int, string> */
-    private const STATUS_CATEGORY = [
-        0 => 'network',
-        408 => 'timeout',
-        429 => 'rate_limit',
+    private const STATUS_REASON = [
+        0 => 'NETWORK',
+        408 => 'TIMEOUT',
+        429 => 'RATE_LIMIT',
     ];
 
     /**
@@ -148,7 +148,7 @@ final class Transport
             $declaredLength = $response['headers']['content-length'] ?? null;
             if ($declaredLength !== null && (int) $declaredLength > Config::MAX_RESPONSE_BYTES) {
                 return $this->errorResult(new SdkError(
-                    'internal',
+                    'INTERNAL',
                     'Received an invalid response from the server',
                     false,
                 ));
@@ -156,7 +156,7 @@ final class Transport
 
             if (($response['headers']['x-nylon-oversized'] ?? null) === '1') {
                 return $this->errorResult(new SdkError(
-                    'internal',
+                    'INTERNAL',
                     'Received an invalid response from the server',
                     false,
                 ));
@@ -197,7 +197,7 @@ final class Transport
             $responseBody = json_decode($rawBody, true);
             if (!is_array($responseBody) || !array_key_exists('status', $responseBody)) {
                 return $this->errorResult(new SdkError(
-                    'internal',
+                    'INTERNAL',
                     'Received an invalid response from the server',
                     false,
                 ));
@@ -222,12 +222,7 @@ final class Transport
             $reason = Reachability::classifyError($error->getMessage(), (int) $error->getCode());
             $this->reachability->noteDown($reason);
 
-            return $this->errorResult(new SdkError(
-                'network',
-                $reason,
-                true,
-                Reachability::CODE,
-            ));
+            return $this->errorResult(Reachability::sdkError($reason));
         }
     }
 
@@ -286,7 +281,7 @@ final class Transport
 
         if ($responseSignature === null) {
             return $this->errorResult(new SdkError(
-                'internal',
+                'INTERNAL',
                 'Could not verify the server response',
                 false,
             ));
@@ -294,7 +289,7 @@ final class Transport
 
         if (!VerifyResponse::verify($strippedData, $responseSignature, $this->config['apiSecret'])) {
             return $this->errorResult(new SdkError(
-                'internal',
+                'INTERNAL',
                 'Could not verify the server response',
                 false,
             ));
@@ -303,7 +298,7 @@ final class Transport
         [$unboundData, $echoedNonce] = $this->stripRequestNonce($strippedData);
         if ($echoedNonce !== ($headers['x-nylon-nonce'] ?? null)) {
             return $this->errorResult(new SdkError(
-                'internal',
+                'INTERNAL',
                 'Could not verify the server response',
                 false,
             ));
@@ -343,23 +338,23 @@ final class Transport
         if (preg_match('/^(.*?)\s*--\s*error-type:\s*([a-z_]+)(?:\s*--\s*error-code:\s*([a-z0-9_]+))?\s*$/is', $message, $matches) === 1) {
             $category = $matches[2];
             if (in_array($category, self::KNOWN_CATEGORIES, true)) {
-                return new SdkError(
-                    $category,
-                    $matches[1],
-                    in_array($statusCode, Config::RETRYABLE_STATUS_CODES, true),
-                    $matches[3] ?? null,
-                );
+                return SdkError::from([
+                    'category' => $category,
+                    'message' => $matches[1],
+                    'retryable' => in_array($statusCode, Config::RETRYABLE_STATUS_CODES, true),
+                    'code' => $matches[3] ?? null,
+                ]);
             }
         }
 
-        $category = self::STATUS_CATEGORY[$statusCode]
-            ?? ($statusCode >= 500 ? 'internal' : 'validation');
+        $reason = self::STATUS_REASON[$statusCode]
+            ?? ($statusCode >= 500 ? 'INTERNAL' : 'VALIDATION');
 
-        return new SdkError(
-            $category,
-            $message,
-            in_array($statusCode, Config::RETRYABLE_STATUS_CODES, true),
-        );
+        return SdkError::from([
+            'reason' => $reason,
+            'message' => $message,
+            'retryable' => in_array($statusCode, Config::RETRYABLE_STATUS_CODES, true),
+        ]);
     }
 
     private function calculateBackoff(int $attempt): float

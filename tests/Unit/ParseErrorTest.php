@@ -15,6 +15,7 @@ final class ParseErrorTest extends TestCase
             'Amount is below the minimum -- error-type: validation -- error-code: invalid_number'
         );
 
+        self::assertSame('VALIDATION', $error->reason);
         self::assertSame('validation', $error->category);
         self::assertSame('Amount is below the minimum', $error->message);
         self::assertSame('invalid_number', $error->code);
@@ -24,6 +25,7 @@ final class ParseErrorTest extends TestCase
     {
         $error = ParseError::parse('Sign in again -- error-type: auth');
 
+        self::assertSame('AUTH', $error->reason);
         self::assertSame('auth', $error->category);
         self::assertSame('Sign in again', $error->message);
         self::assertNull($error->code);
@@ -36,6 +38,7 @@ final class ParseErrorTest extends TestCase
         );
         $exception = ParseError::createSdkException($error);
 
+        self::assertSame('VALIDATION', $exception->reason);
         self::assertSame('validation', $exception->category);
         self::assertSame('invalid_number', $exception->errorCode);
         self::assertSame('Amount is below the minimum', $exception->getMessage());

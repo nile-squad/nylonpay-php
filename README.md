@@ -26,7 +26,7 @@ $nylon = createNylonPay([
     'apiKey' => 'npk_test_...',
     'apiSecret' => 'nps_test_...',
     'onError' => function (SdkError $error): void {
-        if ($error->code === 'unreachable') {
+        if ($error->reason === 'SERVICES_DOWN') {
             error_log('Pause payment attempts: ' . $error->message);
         }
     },
@@ -101,7 +101,7 @@ if ($result->isOk()) {
     $status = $result->value();
 } else {
     $error = parseError($result->error());
-    // $error->category, $error->code, $error->message, $error->retryable
+    // $error->reason, $error->message, $error->retryable
 }
 ```
 
@@ -142,9 +142,9 @@ Verification never throws — it returns `false` on any failure.
 
 ## Errors
 
-- Misconfiguration and client validation throw `SdkException` with `category`.
+- Misconfiguration and client validation throw `SdkException` with `reason`.
 - Sync operations return `Result` errors as JSON-serialized strings — use `parseError()`.
-- Branch on `category`, never message text.
+- Branch on `reason`, never message text.
 
 Categories: `auth`, `validation`, `limit`, `rate_limit`, `account`, `provider`, `duplicate`, `not_found`, `internal`, `network`, `timeout`.
 

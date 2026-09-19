@@ -6,7 +6,8 @@ Upgrading from 0.1.1.
 
 ### Added
 
-- `onError` in `createNylonPay` receives final structured operation errors for the SDK instance. Offline and Nylon-down errors use `category: "network"` and `code: "unreachable"`. A successful call skips further down-checks for about 5 minutes. If the last check is older than that, it checks again rather than treating Nylon as still down. After a failure, the next operation is checked before it is attempted.
+- `SdkError` uses ALL-CAPS `$reason` (`AUTH`, `NETWORK`, `SERVICES_DOWN`, …). `NETWORK` means this machine is offline. `SERVICES_DOWN` means Nylon Pay did not complete the request. `$category` and string `$code` remain deprecated aliases this release.
+- `onError` in `createNylonPay` receives final structured operation errors for the SDK instance. A successful call skips further down-checks for about 5 minutes. If the last check is older than that, it checks again rather than treating Nylon as still down. After a failure, the next operation is checked before it is attempted.
 - `on_hold` is a non-terminal / processing event, matching TypeScript and Python. `under_review` normalizes to `on_hold`.
 - `parseError` reads an optional `-- error-code:` suffix onto `SdkError::$code`. `createSdkException` forwards it as `SdkException::$errorCode` (`Exception` already owns integer `$code`).
 - Status and transaction payloads may include `id`, `operatorTid`, `failureReason`, `failureCategory`, `failureCode`, `statusText`, and `delayed`.

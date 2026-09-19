@@ -54,7 +54,7 @@ final class PollUntilTerminal
 
             if ($statusResult->isErr()) {
                 $parsed = ParseError::parse($statusResult->error());
-                if ($parsed->category === 'not_found') {
+                if ($parsed->reason === 'NOT_FOUND') {
                     usleep($pollIntervalMs * 1000);
                     continue;
                 }

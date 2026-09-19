@@ -153,20 +153,20 @@ final class NylonPay
     {
         $phone = $input['phone'] ?? null;
         if (!is_string($phone) || trim($phone) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'phone is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phone is required'));
         }
         $meterNumber = $input['meterNumber'] ?? null;
         if (!is_string($meterNumber) || trim($meterNumber) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'meterNumber is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'meterNumber is required'));
         }
         $amount = $input['amount'] ?? null;
         if (!is_int($amount) || $amount <= 0) {
-            throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'amount must be a positive integer'));
         }
 
         $normalizedPhone = Phone::normalize($phone, 'UGX');
         if (!Phone::isValidFormat($normalizedPhone)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phone must be a valid phone number'));
         }
 
         $rawReference = $input['reference'] ?? null;
@@ -189,27 +189,27 @@ final class NylonPay
     {
         $phone = $input['phone'] ?? null;
         if (!is_string($phone) || trim($phone) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'phone is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phone is required'));
         }
         $purchaseType = $input['purchaseType'] ?? null;
         if ($purchaseType !== 'airtime' && $purchaseType !== 'bundle') {
-            throw ParseError::createSdkException(new SdkError('validation', 'purchaseType must be airtime or bundle'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'purchaseType must be airtime or bundle'));
         }
         if ($purchaseType === 'airtime') {
             $amount = $input['amount'] ?? null;
             if (!is_int($amount) || $amount <= 0) {
-                throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+                throw ParseError::createSdkException(new SdkError('VALIDATION', 'amount must be a positive integer'));
             }
         } else {
             $bundleId = $input['bundleId'] ?? null;
             if (!is_string($bundleId) || trim($bundleId) === '') {
-                throw ParseError::createSdkException(new SdkError('validation', 'bundleId is required'));
+                throw ParseError::createSdkException(new SdkError('VALIDATION', 'bundleId is required'));
             }
         }
 
         $normalizedPhone = Phone::normalize($phone, 'UGX');
         if (!Phone::isValidFormat($normalizedPhone)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'phone must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phone must be a valid phone number'));
         }
 
         $rawReference = $input['reference'] ?? null;
@@ -232,7 +232,7 @@ final class NylonPay
     {
         $reference = $input['reference'] ?? null;
         if (!is_string($reference) || trim($reference) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'reference is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'reference is required'));
         }
 
         return $this->transport->send([
@@ -251,7 +251,7 @@ final class NylonPay
         $reference = $input['reference'] ?? null;
 
         if ((!is_string($id) || $id === '') && (!is_string($reference) || $reference === '')) {
-            throw ParseError::createSdkException(new SdkError('validation', 'id or reference is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'id or reference is required'));
         }
 
         return $this->transport->send([
@@ -297,7 +297,7 @@ final class NylonPay
     public function getTransactionsByTag(string $tag, array $options = []): Result
     {
         if (trim($tag) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'tag is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'tag is required'));
         }
 
         return $this->listTransactions(array_merge($options, ['tags' => [$tag]]));
@@ -311,12 +311,12 @@ final class NylonPay
     {
         $phoneNumber = $input['phoneNumber'] ?? null;
         if (!is_string($phoneNumber) || trim($phoneNumber) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'phoneNumber is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phoneNumber is required'));
         }
 
         $normalized = Phone::normalize($phoneNumber);
         if (!Phone::isValidFormat($normalized)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'phoneNumber must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'phoneNumber must be a valid phone number'));
         }
 
         $payload = array_merge($input, ['phoneNumber' => $normalized]);
@@ -336,25 +336,25 @@ final class NylonPay
         $amount = $input['amount'] ?? null;
         $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
         if (!is_int($amount) || $amount <= 0) {
-            throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'amount must be a positive integer'));
         }
 
         if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_COLLECTION_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
-                'validation',
+                'VALIDATION',
                 'Collection amount must be at least ' . Config::MIN_COLLECTION_AMOUNT . ' UGX',
             ));
         }
 
         $customerEmail = $input['customerEmail'] ?? null;
         if (!is_string($customerEmail) || trim($customerEmail) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'customerEmail is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customerEmail is required'));
         }
 
         $items = $input['items'] ?? null;
         if (is_array($items)) {
             if (count($items) > 50) {
-                throw ParseError::createSdkException(new SdkError('validation', 'items must not exceed 50'));
+                throw ParseError::createSdkException(new SdkError('VALIDATION', 'items must not exceed 50'));
             }
 
             foreach ($items as $item) {
@@ -366,11 +366,11 @@ final class NylonPay
                 $unitPrice = $item['unitPrice'] ?? null;
 
                 if (!is_int($quantity) || $quantity <= 0) {
-                    throw ParseError::createSdkException(new SdkError('validation', 'item quantity must be a positive integer'));
+                    throw ParseError::createSdkException(new SdkError('VALIDATION', 'item quantity must be a positive integer'));
                 }
 
                 if (!is_int($unitPrice) || $unitPrice <= 0) {
-                    throw ParseError::createSdkException(new SdkError('validation', 'item unitPrice must be a positive integer'));
+                    throw ParseError::createSdkException(new SdkError('VALIDATION', 'item unitPrice must be a positive integer'));
                 }
             }
         }
@@ -460,47 +460,47 @@ final class NylonPay
         $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
 
         if (!is_int($amount) || $amount <= 0) {
-            throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'amount must be a positive integer'));
         }
 
         if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_COLLECTION_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
-                'validation',
+                'VALIDATION',
                 'Collection amount must be at least ' . Config::MIN_COLLECTION_AMOUNT . ' UGX',
             ));
         }
 
         $customer = $input['customer'] ?? null;
         if (!is_array($customer)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.name is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.name is required'));
         }
 
         $name = $customer['name'] ?? null;
         $phoneNumber = $customer['phoneNumber'] ?? null;
 
         if (!is_string($name) || trim($name) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.name is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.name is required'));
         }
 
         if (!is_string($phoneNumber) || trim($phoneNumber) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.phoneNumber is required'));
         }
 
         $normalizedPhone = Phone::normalize($phoneNumber, $currency);
         if (!Phone::isValidFormat($normalizedPhone)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.phoneNumber must be a valid phone number'));
         }
 
         $description = $input['description'] ?? null;
         if (!is_string($description) || trim($description) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'description is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'description is required'));
         }
 
         $this->validateTestOutcome($input['testOutcome'] ?? null);
 
         $method = $input['method'] ?? 'mobileMoney';
         if ($method === 'bank' && !isset($input['bank'])) {
-            throw ParseError::createSdkException(new SdkError('validation', 'bank details are required when method is "bank"'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'bank details are required when method is "bank"'));
         }
 
         $payload = $input;
@@ -521,67 +521,67 @@ final class NylonPay
         $currency = is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX';
 
         if (!is_int($amount) || $amount <= 0) {
-            throw ParseError::createSdkException(new SdkError('validation', 'amount must be a positive integer'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'amount must be a positive integer'));
         }
 
         if (!Config::hasNoNylonFloor($currency) && $amount < Config::MIN_DISBURSEMENT_AMOUNT) {
             throw ParseError::createSdkException(new SdkError(
-                'validation',
+                'VALIDATION',
                 'Payout amount must be at least ' . Config::MIN_DISBURSEMENT_AMOUNT . ' UGX',
             ));
         }
 
         $customer = $input['customer'] ?? null;
         if (!is_array($customer)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.name is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.name is required'));
         }
 
         $name = $customer['name'] ?? null;
         $phoneNumber = $customer['phoneNumber'] ?? null;
 
         if (!is_string($name) || trim($name) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.name is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.name is required'));
         }
 
         if (!is_string($phoneNumber) || trim($phoneNumber) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.phoneNumber is required'));
         }
 
         $normalizedPhone = Phone::normalize($phoneNumber, $currency);
         if (!Phone::isValidFormat($normalizedPhone)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'customer.phoneNumber must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'customer.phoneNumber must be a valid phone number'));
         }
 
         $description = $input['description'] ?? null;
         if (!is_string($description) || trim($description) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'description is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'description is required'));
         }
 
         $this->validateTestOutcome($input['testOutcome'] ?? null);
 
         $destination = $input['destination'] ?? null;
         if (!is_array($destination)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'destination.accountHolderName is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'destination.accountHolderName is required'));
         }
 
         $accountHolderName = $destination['accountHolderName'] ?? null;
         $accountNumber = $destination['accountNumber'] ?? null;
 
         if (!is_string($accountHolderName) || trim($accountHolderName) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'destination.accountHolderName is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'destination.accountHolderName is required'));
         }
 
         if (!is_string($accountNumber) || trim($accountNumber) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'destination.accountNumber is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'destination.accountNumber is required'));
         }
 
         $destinationPhone = $destination['phone'] ?? null;
         if (!is_string($destinationPhone) || trim($destinationPhone) === '') {
-            throw ParseError::createSdkException(new SdkError('validation', 'destination.phone is required'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'destination.phone is required'));
         }
         $normalizedDestinationPhone = Phone::normalize($destinationPhone, is_string($input['currency'] ?? null) ? $input['currency'] : 'UGX');
         if (!Phone::isValidFormat($normalizedDestinationPhone)) {
-            throw ParseError::createSdkException(new SdkError('validation', 'destination.phone must be a valid phone number'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'destination.phone must be a valid phone number'));
         }
 
         $payload = $input;
@@ -601,7 +601,7 @@ final class NylonPay
     {
         if ($testOutcome !== null && !in_array($testOutcome, Config::SANDBOX_TEST_OUTCOMES, true)) {
             throw ParseError::createSdkException(new SdkError(
-                'validation',
+                'VALIDATION',
                 'testOutcome must be "success", "fail", or a Nylon failure code',
             ));
         }
@@ -614,7 +614,7 @@ final class NylonPay
         }
 
         if (preg_match(self::UUID_REGEX, $reference) !== 1) {
-            throw ParseError::createSdkException(new SdkError('validation', 'reference must be a valid UUID'));
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'reference must be a valid UUID'));
         }
 
         return $reference;

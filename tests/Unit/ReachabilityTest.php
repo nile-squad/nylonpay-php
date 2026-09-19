@@ -108,6 +108,7 @@ final class ReachabilityTest extends TestCase
         self::assertNotNull($blocked);
         self::assertTrue($blocked->isErr());
         $parsed = ParseError::parse($blocked->error());
+        self::assertSame('NETWORK', $parsed->reason);
         self::assertSame('network', $parsed->category);
         self::assertSame(Reachability::CODE, $parsed->code);
         self::assertSame(Reachability::HOST_OFFLINE, $parsed->message);

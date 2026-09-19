@@ -99,7 +99,7 @@ final class PaymentInstance
         if ($this->pendingError !== null) {
             $error = $this->pendingError;
             $this->pendingError = null;
-            $this->emitEvent('error', $error->message, $error->category, $error->retryable, $error->code);
+            $this->emitEvent('error', $error->message, $error->reason, $error->retryable, $error->category, $error->code);
 
             return null;
         }
@@ -149,7 +149,7 @@ final class PaymentInstance
             $this->emitEvent(
                 'error',
                 'Timed out waiting for the transaction status to update',
-                'timeout',
+                'TIMEOUT',
             );
             $this->resolved = true;
 
@@ -161,7 +161,7 @@ final class PaymentInstance
             $this->emitEvent(
                 'error',
                 'Timed out waiting for the transaction status to update',
-                'timeout',
+                'TIMEOUT',
             );
             $this->resolved = true;
 
@@ -180,11 +180,11 @@ final class PaymentInstance
         }
 
         $parsed = ParseError::parse($result->error());
-        if ($parsed->category === 'not_found') {
+        if ($parsed->reason === 'NOT_FOUND') {
             return;
         }
 
-        $this->emitEvent('error', $parsed->message, $parsed->category, $parsed->retryable, $parsed->code);
+        $this->emitEvent('error', $parsed->message, $parsed->reason, $parsed->retryable, $parsed->category, $parsed->code);
         $this->resolved = true;
     }
 
@@ -199,7 +199,7 @@ final class PaymentInstance
             $this->emitEvent(
                 'error',
                 'Received a status update for a different transaction',
-                'internal',
+                'INTERNAL',
             );
             $this->resolved = true;
 
@@ -262,8 +262,9 @@ final class PaymentInstance
             $this->emitEvent(
                 'error',
                 $parsed->message,
-                $parsed->category,
+                $parsed->reason,
                 $parsed->retryable,
+                $parsed->category,
                 $parsed->code,
             );
         }
@@ -274,8 +275,9 @@ final class PaymentInstance
     private function emitEvent(
         string $event,
         ?string $error = null,
-        ?string $category = null,
+        ?string $reason = null,
         ?bool $retryable = null,
+        ?string $category = null,
         ?string $code = null,
     ): void {
         $this->emitter->emit($event, [
@@ -284,6 +286,7 @@ final class PaymentInstance
             'timestamp' => (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM),
             'transaction' => $this->transaction,
             'error' => $error,
+            'reason' => $reason,
             'category' => $category,
             'code' => $code,
             'retryable' => $retryable,

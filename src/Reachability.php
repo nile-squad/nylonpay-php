@@ -146,7 +146,11 @@ final class Reachability
 
     public static function sdkError(string $reason): SdkError
     {
-        return new SdkError('network', $reason, true, self::CODE);
+        return SdkError::from([
+            'reason' => $reason === self::HOST_OFFLINE ? 'NETWORK' : 'SERVICES_DOWN',
+            'message' => $reason,
+            'retryable' => true,
+        ]);
     }
 
     /**
