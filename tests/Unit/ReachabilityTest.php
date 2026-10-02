@@ -41,7 +41,6 @@ final class ReachabilityTest extends TestCase
         $now = 1000;
         $probes = 0;
         $tracker = new Reachability(
-            null,
             static function () use (&$now): int {
                 return $now;
             },
@@ -68,7 +67,6 @@ final class ReachabilityTest extends TestCase
         $now = 1000;
         $probes = 0;
         $tracker = new Reachability(
-            null,
             static function () use (&$now): int {
                 return $now;
             },
@@ -122,7 +120,6 @@ final class ReachabilityTest extends TestCase
         $now = 1000;
         $probes = 0;
         $tracker = new Reachability(
-            null,
             static function () use (&$now): int {
                 return $now;
             },
@@ -148,7 +145,6 @@ final class ReachabilityTest extends TestCase
         $now = 1000;
         $probes = 0;
         $tracker = new Reachability(
-            null,
             static function () use (&$now): int {
                 return $now;
             },
