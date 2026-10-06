@@ -16,11 +16,17 @@ Upgrading from 0.1.1.
 
 ### Changed
 
+- The default API address is now `https://api.nylonpay.com/api/services`. The original address, `https://api.nylonpay.nilesquad.com/api/services`, is still served; pass it as `baseUrl` to keep using it. Both are exported as `Config::DEFAULT_BASE_URL` and `Config::LEGACY_BASE_URL`. Earlier releases keep working unchanged.
+- `Phone::normalize` gives a 9-digit local number typed without its leading `0` the dial code for the payment currency (`712345678` with `TZS` becomes `255712345678`).
 - Webhook collections send `type: "collection"` plus `legacyType: "charge"` this window.
 
 ### Fixed
 
 - Client-side `testOutcome` validation now accepts the same Nylon failure codes the backend does. It previously rejected anything except `"success"` and `"fail"`.
+
+### Notes
+
+- Invoices need Level 2 verification in every currency. Below Level 2, creating an invoice returns an `account` error that a retry cannot fix.
 
 ## 0.1.1
 

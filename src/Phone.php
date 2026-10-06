@@ -25,9 +25,12 @@ final class Phone
         $normalized = preg_replace('/\s+/', '', $phone) ?? $phone;
         $normalized = preg_replace('/^\+/', '', $normalized) ?? $normalized;
 
+        $dial = self::DIAL_BY_CURRENCY[strtoupper($currency)] ?? '256';
         if (str_starts_with($normalized, '0') && strlen($normalized) === 10) {
-            $dial = self::DIAL_BY_CURRENCY[strtoupper($currency)] ?? '256';
             $normalized = $dial . substr($normalized, 1);
+        } elseif (preg_match('/^\d{9}$/', $normalized) === 1) {
+            // A local number typed without its 0; every market uses 9 digits.
+            $normalized = $dial . $normalized;
         }
 
         return $normalized;

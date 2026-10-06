@@ -59,7 +59,7 @@ $tx = $payment->wait();
 |---|---|---|---|
 | `apiKey` | Yes | | Must start with `npk_` |
 | `apiSecret` | Yes | | Must start with `nps_` |
-| `baseUrl` | No | `https://api.nylonpay.nilesquad.com/api/services` | Override endpoint |
+| `baseUrl` | No | `https://api.nylonpay.com/api/services` | Override endpoint. `Config::LEGACY_BASE_URL` is the original address, still served |
 | `timeoutMs` | No | `90000` | Request timeout in milliseconds |
 | `maxRetries` | No | `3` | Retry count for failed requests |
 | `maxPollIntervalMs` | No | `2000` | Interval between status checks |

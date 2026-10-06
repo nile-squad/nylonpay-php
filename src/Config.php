@@ -9,7 +9,13 @@ namespace NileSquad\NylonPay;
  */
 final class Config
 {
-    public const DEFAULT_BASE_URL = 'https://api.nylonpay.nilesquad.com/api/services';
+    public const DEFAULT_BASE_URL = 'https://api.nylonpay.com/api/services';
+
+    /**
+     * The original production URL. Still served, so existing integrations keep
+     * working; pass it as `baseUrl` to stay on it.
+     */
+    public const LEGACY_BASE_URL = 'https://api.nylonpay.nilesquad.com/api/services';
 
     public const DEFAULT_TIMEOUT_MS = 90_000;
 

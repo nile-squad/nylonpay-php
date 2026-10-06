@@ -21,6 +21,13 @@ final class PhoneTest extends TestCase
         self::assertSame('237671234567', Phone::normalize('0671234567', 'XAF'));
     }
 
+    public function testNineDigitLocalNumberTakesDialCode(): void
+    {
+        self::assertSame('255712345678', Phone::normalize('712345678', 'TZS'));
+        self::assertSame('256772123456', Phone::normalize('772 123 456', 'UGX'));
+        self::assertSame('256712345678', Phone::normalize('712345678'));
+    }
+
     public function testValidFormat(): void
     {
         self::assertTrue(Phone::isValidFormat('256768499027'));
