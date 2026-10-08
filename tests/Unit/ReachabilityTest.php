@@ -6,6 +6,7 @@ namespace NileSquad\NylonPay\Tests\Unit;
 
 use NileSquad\NylonPay\ParseError;
 use NileSquad\NylonPay\Reachability;
+use NileSquad\NylonPay\SdkError;
 use NileSquad\NylonPay\Tests\Support\MockHttpClient;
 use NileSquad\NylonPay\Transport;
 use PHPUnit\Framework\TestCase;
@@ -123,7 +124,7 @@ final class ReachabilityTest extends TestCase
             static function () use (&$now): int {
                 return $now;
             },
-            static function () use (&$probes): ?string {
+            static function () use (&$probes): string {
                 $probes++;
 
                 return Reachability::NYLON_DOWN;
@@ -180,7 +181,7 @@ final class ReachabilityTest extends TestCase
             'maxRetries' => 0,
             'timeoutMs' => 1000,
             'httpClient' => $client,
-            'onError' => static function (object $error) use (&$reported): void {
+            'onError' => static function (SdkError $error) use (&$reported): void {
                 $reported[] = $error;
             },
         ]);

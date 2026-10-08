@@ -123,6 +123,9 @@ final class Transport
         Result::try(static fn () => $handler($error));
     }
 
+    /**
+     * @return Result<mixed, string>
+     */
     private function errorResult(SdkError $error): Result
     {
         $this->reportError($error);

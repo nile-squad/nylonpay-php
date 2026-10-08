@@ -28,7 +28,12 @@ final class SdkError
         'TIMEOUT',
     ];
 
-    /** @var array<string, SdkErrorReason> */
+    /**
+     * Literal keys double as the set of categories the wire is allowed to
+     * send, so an unknown category can be narrowed out at the call site.
+     *
+     * @var array{auth: 'AUTH', validation: 'VALIDATION', limit: 'LIMIT', rate_limit: 'RATE_LIMIT', account: 'ACCOUNT', provider: 'PROVIDER', duplicate: 'DUPLICATE', not_found: 'NOT_FOUND', internal: 'INTERNAL', network: 'NETWORK', timeout: 'TIMEOUT'}
+     */
     private const CATEGORY_TO_REASON = [
         'auth' => 'AUTH',
         'validation' => 'VALIDATION',
@@ -86,7 +91,7 @@ final class SdkError
     }
 
     /**
-     * @param array{reason?: string, category?: string, message: string, retryable?: bool|null, code?: string|null} $params
+     * @param array{reason?: string|null, category?: string|null, message: string, retryable?: bool|null, code?: string|null} $params
      */
     public static function from(array $params): self
     {
@@ -103,14 +108,17 @@ final class SdkError
             $resolvedCode = Config::UNREACHABLE_CODE;
         }
 
+        $category = $params['category'] ?? null;
+        $knownCategory = is_string($category) && isset(self::CATEGORY_TO_REASON[$category])
+            ? $category
+            : null;
+
         return new self(
             $reason,
             $message,
             $params['retryable'] ?? null,
             $resolvedCode,
-            isset($params['category']) && is_string($params['category'])
-                ? $params['category']
-                : null,
+            $knownCategory,
         );
     }
 
