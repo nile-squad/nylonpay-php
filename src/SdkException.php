@@ -17,7 +17,7 @@ final class SdkException extends \RuntimeException
          * @deprecated Use $reason.
          */
         public readonly ?string $category = null,
-        // Named errorCode — Exception already owns integer $code.
+        // Named errorCode, Exception already owns integer $code.
         /**
          * @deprecated Use $reason.
          */

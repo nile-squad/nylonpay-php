@@ -77,18 +77,18 @@ The factory caches instances by `apiKey + baseUrl + sha256(apiSecret)`. Rotating
 
 All operations take a single associative array. Method names match the cross-language SDK spec.
 
-- `collectPayment` — returns `PaymentInstance`
-- `collectPaymentAndResolve` — blocks until terminal, returns `Result`
-- `makePayout` — returns `PaymentInstance`
-- `makePayoutAndResolve` — blocks until terminal, returns `Result`
-- `getStatus` — one-shot status check
-- `getTransaction` — full transaction lookup
-- `listTransactions` — paginated list with optional filters
-- `getTransactionsByTag` — shorthand tag filter
-- `verifyPhone` — pre-validate a phone number. International numbers keep their
+- `collectPayment`: returns `PaymentInstance`
+- `collectPaymentAndResolve`: blocks until terminal, returns `Result`
+- `makePayout`: returns `PaymentInstance`
+- `makePayoutAndResolve`: blocks until terminal, returns `Result`
+- `getStatus`: one-shot status check
+- `getTransaction`: full transaction lookup
+- `listTransactions`: paginated list with optional filters
+- `getTransactionsByTag`: shorthand tag filter
+- `verifyPhone`: pre-validate a phone number. International numbers keep their
   calling code (`+254…` stays Kenya). A local `0…` number is treated as Uganda.
-- `createInvoice` — hosted invoice link
-- `verifyWebhookSignature` — HMAC verification utility
+- `createInvoice`: hosted invoice link
+- `verifyWebhookSignature`: HMAC verification utility
 
 ### Sync result example
 
@@ -138,12 +138,12 @@ if (!$valid) {
 }
 ```
 
-Verification never throws — it returns `false` on any failure.
+Verification never throws. It returns `false` on any failure.
 
 ## Errors
 
 - Misconfiguration and client validation throw `SdkException` with `reason`.
-- Sync operations return `Result` errors as JSON-serialized strings — use `parseError()`.
+- Sync operations return `Result` errors as JSON-serialized strings, use `parseError()`.
 - Branch on `reason`, never message text.
 
 Categories: `auth`, `validation`, `limit`, `rate_limit`, `account`, `provider`, `duplicate`, `not_found`, `internal`, `network`, `timeout`.

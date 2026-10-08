@@ -11,7 +11,7 @@ final class VerifyWebhook
 {
     public const DEFAULT_TOLERANCE_SECONDS = 300;
 
-    /** Explicit opt-out of freshness checks — `0` means strict, not disabled. */
+    /** Explicit opt-out of freshness checks, `0` means strict, not disabled. */
     public const DISABLE_FRESHNESS_CHECK = -1;
 
     /**

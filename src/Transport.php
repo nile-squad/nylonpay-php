@@ -19,7 +19,7 @@ final class Transport
      * `error-code` says `parseError` can read the optional
      * ` -- error-code: <code>` tail. Every release before this one parsed the
      * category with a regex anchored at the end of the message, so a code
-     * appended after it left them with no match — category silently downgraded
+     * appended after it left them with no match, category silently downgraded
      * to `internal`, and the raw suffixes shown to the user as part of the
      * message. The backend only appends a code for clients listed here.
      *

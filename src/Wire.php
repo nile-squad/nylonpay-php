@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NileSquad\NylonPay;
 
 /**
- * Wire helpers — omit absent optionals and recurse nested structures.
+ * Wire helpers, omit absent optionals and recurse nested structures.
  */
 final class Wire
 {
