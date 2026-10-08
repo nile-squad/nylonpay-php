@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+Upgrading from 0.2.0.
+
+### Fixed
+
+- Documentation only: removed em dashes from the README and the source docblocks, and reworded the few sentences that punctuation left awkward. No behavior change.
+
 ## 0.2.0
 
 Upgrading from 0.1.1.
