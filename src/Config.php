@@ -59,6 +59,9 @@ final class Config
     ];
 
     /** @var list<string> */
+    public const SANDBOX_PROMPTS = ['pin'];
+
+    /** @var list<string> */
     public const NO_NYLON_FLOOR_CURRENCIES = ['CDF', 'KES', 'RWF', 'TZS'];
 
     public static function hasNoNylonFloor(string $currency): bool

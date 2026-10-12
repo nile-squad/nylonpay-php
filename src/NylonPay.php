@@ -497,6 +497,7 @@ final class NylonPay
         }
 
         $this->validateTestOutcome($input['testOutcome'] ?? null);
+        $this->validateSandboxPrompt($input['prompt'] ?? null);
 
         $method = $input['method'] ?? 'mobileMoney';
         if ($method === 'bank' && !isset($input['bank'])) {
@@ -558,6 +559,7 @@ final class NylonPay
         }
 
         $this->validateTestOutcome($input['testOutcome'] ?? null);
+        $this->validateSandboxPrompt($input['prompt'] ?? null);
 
         $destination = $input['destination'] ?? null;
         if (!is_array($destination)) {
@@ -604,6 +606,17 @@ final class NylonPay
                 'VALIDATION',
                 'testOutcome must be "success", "fail", or a Nylon failure code',
             ));
+        }
+    }
+
+    /**
+     * Validate the sandbox-only customer PIN gate. Same guarantees as
+     * validateTestOutcome: runs on hook output too.
+     */
+    private function validateSandboxPrompt(mixed $prompt): void
+    {
+        if ($prompt !== null && !in_array($prompt, Config::SANDBOX_PROMPTS, true)) {
+            throw ParseError::createSdkException(new SdkError('VALIDATION', 'prompt must be "pin"'));
         }
     }
 

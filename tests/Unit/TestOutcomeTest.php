@@ -147,4 +147,50 @@ final class TestOutcomeTest extends TestCase
 
         self::assertCount(0, $this->requests);
     }
+
+    public function testCollectPaymentForwardsPromptPinOnWire(): void
+    {
+        $sdk = $this->sdkWithCapture();
+        $sdk->collectPayment([...$this->collectBase(), 'prompt' => 'pin']);
+
+        self::assertSame('pin', $this->lastWirePayload()['prompt'] ?? null);
+    }
+
+    public function testMakePayoutForwardsPromptPinOnWire(): void
+    {
+        $sdk = $this->sdkWithCapture();
+        $sdk->makePayout([...$this->payoutBase(), 'prompt' => 'pin']);
+
+        self::assertSame('pin', $this->lastWirePayload()['prompt'] ?? null);
+    }
+
+    public function testOmittedPromptIsAbsentFromWire(): void
+    {
+        $sdk = $this->sdkWithCapture();
+        $sdk->collectPayment($this->collectBase());
+
+        self::assertArrayNotHasKey('prompt', $this->lastWirePayload());
+    }
+
+    public function testInvalidPromptThrowsBeforeNetwork(): void
+    {
+        $sdk = $this->sdkWithCapture();
+
+        try {
+            $sdk->collectPayment([...$this->collectBase(), 'prompt' => 'later']);
+            self::fail('Expected SdkException for invalid prompt');
+        } catch (SdkException $e) {
+            self::assertSame('validation', $e->category);
+            self::assertStringContainsString('prompt must be "pin"', $e->getMessage());
+        }
+
+        try {
+            $sdk->makePayout([...$this->payoutBase(), 'prompt' => 'later']);
+            self::fail('Expected SdkException for invalid prompt');
+        } catch (SdkException $e) {
+            self::assertSame('validation', $e->category);
+        }
+
+        self::assertCount(0, $this->requests);
+    }
 }
