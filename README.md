@@ -79,16 +79,16 @@ All operations take a single associative array. Method names match the cross-lan
 
 - `collectPayment`: returns `PaymentInstance`
 - `collectPaymentAndResolve`: blocks until terminal, returns `Result`
-- `makePayout`: returns `PaymentInstance`
-- `makePayoutAndResolve`: blocks until terminal, returns `Result`
+- `makePayout`: returns `PaymentInstance` (`destination` requires `accountHolderName`, `accountNumber`, and `phone`)
+- `makePayoutAndResolve`: blocks until terminal, returns `Result` (`destination` requires `phone`)
 - `getStatus`: one-shot status check
 - `getTransaction`: full transaction lookup
 - `listTransactions`: paginated list with optional filters
 - `getTransactionsByTag`: shorthand tag filter
 - `verifyPhone`: pre-validate a phone number. International numbers keep their
   calling code (`+254…` stays Kenya). A local `0…` number is treated as Uganda.
-- `createInvoice`: hosted invoice link
-- `verifyWebhookSignature`: HMAC verification utility
+- `createInvoice`: hosted invoice link (requires an approved Level 2 account)
+- `verifyWebhookSignature`: verify an incoming webhook before you trust it
 
 ### Sync result example
 
@@ -138,7 +138,7 @@ $signature = $_SERVER['HTTP_X_NYLON_SIGNATURE'] ?? '';
 $valid = verifyWebhookSignature([
     'payload' => $rawBody,
     'signature' => $signature,
-    'secret' => getenv('NYLON_WEBHOOK_SECRET'),
+    'secret' => getenv('NYLONPAY_WEBHOOK_SECRET'),
 ]);
 
 if (!$valid) {
