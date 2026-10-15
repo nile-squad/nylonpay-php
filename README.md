@@ -2,7 +2,7 @@
 
 Server-side PHP SDK for integrating Nylon Pay payment operations into your application.
 
-[Full documentation](https://docs.nylonpay.nilesquad.com/docs)
+[Full documentation](https://docs.nylonpay.com/docs)
 
 ## Install
 

@@ -9,7 +9,7 @@ Server-side SDK for Nylon Pay. PHP 8.1+ with `ext-curl`, `ext-json`,
 `ext-openssl`, `ext-mbstring`. Published as `nile-squad/nylonpay-php`.
 
 Integration flows (language-agnostic):
-[Nylon Pay integration skill](https://docs.nylonpay.nilesquad.com/docs/skills).
+[Nylon Pay integration skill](https://docs.nylonpay.com/docs/skills).
 This file covers PHP setup and syntax. Method names and array keys match TypeScript
 camelCase. Hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
 
@@ -172,6 +172,6 @@ Verification never throws, it returns `false` on any failure.
 | TypeScript | [`@nile-squad/nylonpay-ts`](https://github.com/nile-squad/nylonpay-ts) | [SKILL.md](https://github.com/nile-squad/nylonpay-ts/blob/main/SKILL.md) |
 | Python | [`nylonpay-py`](https://github.com/nile-squad/nylonpay-py) | [SKILL.md](https://github.com/nile-squad/nylonpay-py/blob/main/SKILL.md) |
 
-Integration skill: [docs](https://docs.nylonpay.nilesquad.com/docs/skills).
-Example prompts: [docs](https://docs.nylonpay.nilesquad.com/docs/skills/example-prompts).
+Integration skill: [docs](https://docs.nylonpay.com/docs/skills).
+Example prompts: [docs](https://docs.nylonpay.com/docs/skills/example-prompts).
 Hub: [nylonpay-overview](https://github.com/nile-squad/nylonpay-overview).
